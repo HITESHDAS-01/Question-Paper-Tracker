@@ -116,15 +116,15 @@ alter table exam_dates enable row level security;
 alter table subjects enable row level security;
 alter table paper_status enable row level security;
 
--- Helper: get current user's school_id
-create or replace function auth.user_school_id()
+-- Helper: get current user's school_id (in public schema)
+create or replace function public.user_school_id()
 returns uuid as $$
   select school_id from users where id = auth.uid()
 $$ language sql security definer stable;
 
 -- schools: users can only read their own school
 create policy "Users can read own school" on schools
-  for select using (id = auth.user_school_id());
+  for select using (id = public.user_school_id());
 
 -- users: users can read/update their own row
 create policy "Users can read own profile" on users
@@ -135,18 +135,18 @@ create policy "Users can update own profile" on users
 
 -- trackers: full CRUD within school
 create policy "School trackers access" on trackers
-  for all using (school_id = auth.user_school_id());
+  for all using (school_id = public.user_school_id());
 
 -- classes: access via tracker's school
 create policy "School classes access" on classes
   for all using (
-    tracker_id in (select id from trackers where school_id = auth.user_school_id())
+    tracker_id in (select id from trackers where school_id = public.user_school_id())
   );
 
 -- exam_dates: access via tracker's school
 create policy "School exam_dates access" on exam_dates
   for all using (
-    tracker_id in (select id from trackers where school_id = auth.user_school_id())
+    tracker_id in (select id from trackers where school_id = public.user_school_id())
   );
 
 -- subjects: access via class -> tracker -> school
@@ -155,7 +155,7 @@ create policy "School subjects access" on subjects
     class_id in (
       select c.id from classes c
       join trackers t on c.tracker_id = t.id
-      where t.school_id = auth.user_school_id()
+      where t.school_id = public.user_school_id()
     )
   );
 
@@ -166,7 +166,7 @@ create policy "School paper_status access" on paper_status
       select s.id from subjects s
       join classes c on s.class_id = c.id
       join trackers t on c.tracker_id = t.id
-      where t.school_id = auth.user_school_id()
+      where t.school_id = public.user_school_id()
     )
   );
 
