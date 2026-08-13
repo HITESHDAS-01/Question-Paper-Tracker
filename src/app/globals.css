@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #F6F1E6;
+  --panel: #FFFDF8;
+  --panel-2: #FBF7EE;
+  --ink: #202A3C;
+  --ink-soft: #5B6478;
+  --ink-faint: #8B92A3;
+  --rule: #DCD3BE;
+  --rule-strong: #C7BB9E;
+  --royal: #2E5C8A;
+  --royal-soft: #E7EEF5;
+  --green: #3F7A55;
+  --green-soft: #E5F1E9;
+  --red: #A6433E;
+  --red-soft: #F5E7E5;
+  --gold: #A87A16;
+  --gold-soft: #F6EEDD;
+}
+
+html[data-theme="dark"] {
+  --paper: #151A22;
+  --panel: #1C232E;
+  --panel-2: #232B38;
+  --ink: #E9E6DC;
+  --ink-soft: #A7AFBE;
+  --ink-faint: #6C7684;
+  --rule: #333D4C;
+  --rule-strong: #475364;
+  --royal: #7FB0E0;
+  --royal-soft: #233247;
+  --green: #7BC79A;
+  --green-soft: #1E3327;
+  --red: #E2908C;
+  --red-soft: #3A2323;
+  --gold: #D9B563;
+  --gold-soft: #3A311C;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .2s, color .2s;
+}
+
+/* Custom utility classes using CSS variables */
+.bg-paper { background-color: var(--paper); }
+.bg-panel { background-color: var(--panel); }
+.bg-panel-2 { background-color: var(--panel-2); }
+.bg-royal { background-color: var(--royal); }
+.bg-royal-soft { background-color: var(--royal-soft); }
+.bg-green { background-color: var(--green); }
+.bg-green-soft { background-color: var(--green-soft); }
+.bg-red { background-color: var(--red); }
+.bg-red-soft { background-color: var(--red-soft); }
+.bg-gold { background-color: var(--gold); }
+.bg-gold-soft { background-color: var(--gold-soft); }
+
+.text-ink { color: var(--ink); }
+.text-ink-soft { color: var(--ink-soft); }
+.text-ink-faint { color: var(--ink-faint); }
+.text-royal { color: var(--royal); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.text-gold { color: var(--gold); }
+
+.border-rule { border-color: var(--rule); }
+.border-rule-strong { border-color: var(--rule-strong); }
+.border-royal { border-color: var(--royal); }
+.border-green { border-color: var(--green); }
+.border-red { border-color: var(--red); }
+.border-gold { border-color: var(--gold); }
+
+/* Font families */
+.font-display { font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif; }
+.font-mono { font-family: 'SFMono-Regular', 'Cascadia Code', Consolas, 'Roboto Mono', monospace; }
+
+/* Scrollbar styling */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Subject card states */
+.subject-card-complete { border-color: var(--green); }
+.subject-card-partial { border-color: var(--gold); }
+.subject-card-pending { border-color: var(--rule-strong); }
+.subject-card-urgent { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.subject-card-overdue { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
+
+/* Stamp states */
+.stamp-complete { border-color: var(--green); background: var(--green); color: #fff; }
+.stamp-partial { border-color: var(--gold); color: var(--gold); }
+.stamp-pending { border-style: dashed; }
+
+/* Check item received */
+.check-item-received { background: var(--green-soft); }
+
+/* Mini progress */
+.mini-progress-fill { background: var(--green); }
+.progress-fill { background: var(--green); }
+
+/* Date item active */
+.date-item-active { border-left-color: var(--royal); background: var(--royal-soft); }
+
+/* Tracker pill active */
+.tracker-pill-active { background: var(--royal); border-color: var(--royal); color: #fff; font-weight: 700; }
