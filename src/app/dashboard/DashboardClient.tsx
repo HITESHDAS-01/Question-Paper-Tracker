@@ -57,26 +57,31 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
   const fetchTrackerData = useCallback(async (trackerId: string) => {
     setLoading(true)
 
-    const [classesRes, datesRes, subjectsRes, statusRes] = await Promise.all([
-      supabase.from('classes').select('*').eq('tracker_id', trackerId).order('sort_order'),
-      supabase.from('exam_dates').select('*').eq('tracker_id', trackerId).order('date'),
-      supabase.from('subjects').select('*').in(
-        'class_id',
-        (await supabase.from('classes').select('id').eq('tracker_id', trackerId)).data?.map(c => c.id) || []
-      ).order('sort_order'),
-      supabase.from('paper_status').select('*').in(
-        'subject_id',
-        (await supabase.from('subjects').select('id').in(
-          'class_id',
-          (await supabase.from('classes').select('id').eq('tracker_id', trackerId)).data?.map(c => c.id) || []
-        )).data?.map(s => s.id) || []
-      ),
-    ])
+    const classesRes = await supabase.from('classes').select('*').eq('tracker_id', trackerId).order('sort_order')
+    const allClasses = classesRes.data || []
+    setClasses(allClasses)
 
-    setClasses(classesRes.data || [])
+    const datesRes = await supabase.from('exam_dates').select('*').eq('tracker_id', trackerId).order('date')
     setExamDates(datesRes.data || [])
-    setSubjects(subjectsRes.data || [])
-    setPaperStatuses(statusRes.data || [])
+
+    const classIds = allClasses.map((c: { id: string }) => c.id)
+    if (classIds.length > 0) {
+      const subjectsRes = await supabase.from('subjects').select('*').in('class_id', classIds).order('sort_order')
+      const allSubjects = subjectsRes.data || []
+      setSubjects(allSubjects)
+
+      const subjectIds = allSubjects.map((s: { id: string }) => s.id)
+      if (subjectIds.length > 0) {
+        const statusRes = await supabase.from('paper_status').select('*').in('subject_id', subjectIds)
+        setPaperStatuses(statusRes.data || [])
+      } else {
+        setPaperStatuses([])
+      }
+    } else {
+      setSubjects([])
+      setPaperStatuses([])
+    }
+
     setLoading(false)
   }, [supabase])
 

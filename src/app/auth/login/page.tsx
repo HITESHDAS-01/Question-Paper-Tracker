@@ -1,7 +1,7 @@
-import LoginForm from './LoginForm'
+import AuthForm from './AuthForm'
 
 export const dynamic = 'force-dynamic'
 
-export default function LoginPage() {
-  return <LoginForm />
+export default function AuthPage() {
+  return <AuthForm />
 }
