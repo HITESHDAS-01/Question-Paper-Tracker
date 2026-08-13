@@ -120,7 +120,7 @@ export default function AuthForm() {
 
           <div className="mt-12 pt-6" style={{ borderTop: '1px solid var(--rule)' }}>
             <p className="text-xs italic" style={{ color: 'var(--ink-faint)' }}>
-              Built for Royal Global School, Guwahati · Session 2026–27
+              Built for Royal Global School, Guwahati
             </p>
           </div>
         </div>
