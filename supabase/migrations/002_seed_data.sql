@@ -18,18 +18,18 @@ values (
 
 -- Create classes (grades)
 insert into classes (tracker_id, label, track_items, sort_order) values
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '3', '["qp","edited","proofread","corrected","final"]', 1),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '3A', '["qp","edited","proofread","corrected","final"]', 2),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '4', '["qp","edited","proofread","corrected","final"]', 3),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '5', '["qp","edited","proofread","corrected","final"]', 4),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '5A', '["qp","edited","proofread","corrected","final"]', 5),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '6', '["qp","bp","ms","edited","proofread","corrected","final"]', 6),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '7', '["qp","bp","ms","edited","proofread","corrected","final"]', 7),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '8', '["qp","bp","ms","edited","proofread","corrected","final"]', 8),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '9', '["qp","bp","ms","edited","proofread","corrected","final"]', 9),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '10', '["qp","bp","ms","edited","proofread","corrected","final"]', 10),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '11', '["qp","bp","ms","edited","proofread","corrected","final"]', 11),
-  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', '12', '["qp","bp","ms","edited","proofread","corrected","final"]', 12);
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade III', '["qp","edited","proofread","corrected","final"]', 1),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade III-A (Cambridge)', '["qp","edited","proofread","corrected","final"]', 2),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade IV', '["qp","edited","proofread","corrected","final"]', 3),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade V', '["qp","edited","proofread","corrected","final"]', 4),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade V-A (Cambridge)', '["qp","edited","proofread","corrected","final"]', 5),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade VI', '["qp","bp","ms","edited","proofread","corrected","final"]', 6),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade VII', '["qp","bp","ms","edited","proofread","corrected","final"]', 7),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade VIII', '["qp","bp","ms","edited","proofread","corrected","final"]', 8),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade IX', '["qp","bp","ms","edited","proofread","corrected","final"]', 9),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade X', '["qp","bp","ms","edited","proofread","corrected","final"]', 10),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade XI', '["qp","bp","ms","edited","proofread","corrected","final"]', 11),
+  ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'Grade XII', '["qp","bp","ms","edited","proofread","corrected","final"]', 12);
 
 -- Create exam dates
 insert into exam_dates (tracker_id, date, day) values
@@ -45,12 +45,11 @@ insert into exam_dates (tracker_id, date, day) values
 -- ============================================================
 -- Grade III subjects
 -- ============================================================
--- Get class ID for Grade 3
 DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '3';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade III';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'English Literature', 'Language', '2026-09-08', 1),
@@ -71,7 +70,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '3A';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade III-A (Cambridge)';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'English Literature', 'Language', '2026-09-08', 1),
@@ -92,7 +91,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '4';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade IV';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Mathematics', 'Main Subject', '2026-09-08', 1),
@@ -114,7 +113,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '5';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade V';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Social Studies', 'Main Subject', '2026-09-08', 1),
@@ -136,7 +135,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '5A';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade V-A (Cambridge)';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Social Studies', 'Main Subject', '2026-09-08', 1),
@@ -158,7 +157,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '6';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade VI';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'English Language', 'Language', '2026-09-08', 1),
@@ -182,7 +181,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '7';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade VII';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Science', 'Main Subject', '2026-09-08', 1),
@@ -206,7 +205,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '8';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade VIII';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Mathematics', 'Main Subject', '2026-09-08', 1),
@@ -230,7 +229,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '9';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade IX';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Social Science', 'Main Subject', '2026-09-08', 1),
@@ -252,7 +251,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '10';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade X';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Mathematics', 'Main Subject', '2026-09-08', 1),
@@ -275,7 +274,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '11';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade XI';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Business Studies', 'Commerce', '2026-09-08', 1),
@@ -309,7 +308,7 @@ DO $$
 DECLARE
   cls_id uuid;
 BEGIN
-  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = '12';
+  SELECT id INTO cls_id FROM classes WHERE tracker_id = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22' AND label = 'Grade XII';
 
   INSERT INTO subjects (class_id, name, category, exam_date, sort_order) VALUES
     (cls_id, 'Accountancy', 'Commerce', '2026-09-08', 1),
