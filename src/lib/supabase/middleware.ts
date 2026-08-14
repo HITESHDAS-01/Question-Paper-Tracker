@@ -29,9 +29,11 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Refresh session to keep tokens valid
+  const { data, error } = await supabase.auth.getUser()
+
+  // If getUser throws or returns error, treat as no user
+  const user = error ? null : data.user
 
   const protectedPaths = ['/dashboard', '/api']
   const isProtected = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p))
@@ -39,12 +41,6 @@ export async function updateSession(request: NextRequest) {
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
-  }
-
-  if (request.nextUrl.pathname === '/auth/login' && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
