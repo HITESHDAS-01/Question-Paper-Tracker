@@ -118,10 +118,10 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
       </div>
 
       {/* Two-column checklist */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Left: Main items (QP, BP, MS) */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        {/* Left: Main items (QP, BP, MS) — shrink to fit */}
         {mainItems.length > 0 && (
-          <div className="flex-1 space-y-0.5">
+          <div className="sm:w-auto space-y-0.5">
             {mainItems.map(item => (
               <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
                 <input
@@ -133,7 +133,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
                 <span className="flex-1 whitespace-nowrap">{ITEM_LABELS[item] || item}</span>
                 <input
                   type="date"
-                  className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none shrink-0 w-[110px]"
                   value={status[item]?.received_date || ''}
                   onChange={e => onUpdateDate(subject.id, item, e.target.value)}
                   title="Received date"
@@ -148,9 +148,9 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
           <div className="hidden sm:block w-px bg-slate-200 dark:bg-slate-700" />
         )}
 
-        {/* Right: Print Workflow */}
+        {/* Right: Print Workflow — takes remaining space */}
         {workflowItems.length > 0 && (
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Print Workflow</div>
             <div className="space-y-0.5">
               {workflowItems.map(item => (
@@ -164,7 +164,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
                   <span className="flex-1 whitespace-nowrap">{ITEM_LABELS[item] || item}</span>
                   <input
                     type="date"
-                    className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
+                    className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none shrink-0 w-[110px]"
                     value={status[item]?.received_date || ''}
                     onChange={e => onUpdateDate(subject.id, item, e.target.value)}
                     title="Received date"
