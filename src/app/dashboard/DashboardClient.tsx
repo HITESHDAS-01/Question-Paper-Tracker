@@ -196,6 +196,21 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
     setExamDates(prev => prev.filter(e => e.date !== date))
   }
 
+  const handleEditDate = async (oldDate: string, newDate: string) => {
+    if (!newDate || oldDate === newDate) return
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const newDay = dayNames[new Date(newDate + 'T00:00:00').getDay()]
+    setExamDates(prev => {
+      const updated = prev.map(e => e.date === oldDate ? { ...e, date: newDate, day: newDay } : e)
+      const seen = new Set<string>()
+      return updated.filter(e => { if (seen.has(e.date)) return false; seen.add(e.date); return true }).sort((a, b) => a.date.localeCompare(b.date))
+    })
+    setSubjects(prev => prev.map(s => s.exam_date === oldDate ? { ...s, exam_date: newDate } : s))
+    await supabase.from('exam_dates').update({ date: newDate, day: newDay }).eq('tracker_id', activeTrackerId!).eq('date', oldDate)
+    await supabase.from('subjects').update({ exam_date: newDate }).in('id', subjects.filter(s => s.exam_date === oldDate).map(s => s.id))
+    showToast(`Date updated to ${formatDate(newDate)}`)
+  }
+
   const handleUpdateSubject = async (subjectId: string, updates: Partial<Subject>) => {
     setSubjects(prev => prev.map(s => s.id === subjectId ? { ...s, ...updates } : s))
     await supabase.from('subjects').update(updates).eq('id', subjectId)
@@ -205,6 +220,12 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
     if (!confirm(`Delete "${name}"?`)) return
     await supabase.from('subjects').delete().eq('id', subjectId)
     setSubjects(prev => prev.filter(s => s.id !== subjectId))
+  }
+
+  const handleMoveSubject = async (fromClassId: string, subjectId: string, toClassId: string) => {
+    if (!toClassId || fromClassId === toClassId) return
+    setSubjects(prev => prev.map(s => s.id === subjectId ? { ...s, class_id: toClassId } : s))
+    await supabase.from('subjects').update({ class_id: toClassId }).eq('id', subjectId)
   }
 
   const handleMarkAllReceived = async () => {
@@ -247,8 +268,8 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
       subjects.filter(s => s.class_id === cls.id).forEach(s => {
         total++
         const status = getPaperStatusForSubject(s.id)
+        if (status['qp']?.checked || status['bp']?.checked || status['ms']?.checked) received++
         const doneCount = trackItems.reduce((sum, item) => sum + (status[item]?.checked ? 1 : 0), 0)
-        if (doneCount === trackItems.length && trackItems.length > 0) received++
         if (doneCount < trackItems.length && s.exam_date) { const info = getUrgencyInfo(s.exam_date); if (info.cls) urgent++ }
       })
     })
@@ -288,6 +309,10 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
           </select>
           <input type="date" className="exam-date-input" defaultValue={examDate} title="Exam date"
             onChange={e => handleUpdateSubject(subject.id, { exam_date: e.target.value || null })} />
+          <select className="move-select" value="" onChange={e => { if (e.target.value) handleMoveSubject(cls.id, subject.id, e.target.value) }} title="Move to grade">
+            <option value="">&#8599;</option>
+            {classes.filter(c => c.id !== cls.id).map(c => <option key={c.id} value={c.id}>To {c.label}</option>)}
+          </select>
           <button className="delete-btn" onClick={() => handleDeleteSubject(subject.id, subject.name)} title="Delete">×</button>
         </div>
         <div className="contact-row">
@@ -337,7 +362,11 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
             <div key={dateInfo.date} className="grade-section">
               <div className="grade-header"><div className="grade-title">{formatDate(dateInfo.date)} · {dateInfo.day}</div></div>
               {dateSubjects.length === 0 ? <p style={{ color: 'var(--ink-soft)' }}>No exams scheduled.</p> : (
-                <>{classes.map(cls => {
+                <>{[...classes].sort((a, b) => {
+                  const aCam = a.label.includes('(Cambridge)') ? 0 : 1
+                  const bCam = b.label.includes('(Cambridge)') ? 0 : 1
+                  return aCam - bCam
+                }).map(cls => {
                   const clsSubjects = dateSubjects.filter(s => s.class_id === cls.id)
                   if (!clsSubjects.length) return null
                   return (<div key={cls.id}><h4 style={{ fontFamily: 'var(--font-display)', margin: '14px 0 8px', color: 'var(--royal)' }}>{cls.label}</h4><div className="subject-grid">{clsSubjects.map(s => renderSubjectCard(cls, s))}</div></div>)
@@ -364,7 +393,7 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
           const clsSubjects = subjects.filter(s => s.class_id === cls.id)
           const trackItems = getTrackItems(cls)
           let received = 0
-          clsSubjects.forEach(s => { const st = getPaperStatusForSubject(s.id); if (trackItems.some(item => st[item]?.checked)) received++ })
+          clsSubjects.forEach(s => { const st = getPaperStatusForSubject(s.id); if (st['qp']?.checked || st['bp']?.checked || st['ms']?.checked) received++ })
           const progress = clsSubjects.length ? Math.round((received / clsSubjects.length) * 100) : 0
           return (
             <div key={cls.id} className="grade-section">
@@ -384,8 +413,18 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
   }
 
   const renderSubjectwiseView = () => {
+    const romanMap: Record<string, number> = { 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7, 'VIII': 8, 'IX': 9, 'X': 10, 'XI': 11, 'XII': 12 }
+    const getGradeNum = (label: string): number | null => {
+      const m = label.match(/Grade\s+(III|IV|V|VI|VII|VIII|IX|X|XI|XII|\d+)/i)
+      if (!m) return null
+      const up = m[1].toUpperCase()
+      if (romanMap[up] !== undefined) return romanMap[up]
+      const n = parseInt(up)
+      return isNaN(n) ? null : n
+    }
+    const filteredClasses = classes.filter(cls => { const g = getGradeNum(cls.label); return g !== null && g >= 6 })
     const bySubject: Record<string, { cls: Class; subject: Subject }[]> = {}
-    classes.forEach(cls => {
+    filteredClasses.forEach(cls => {
       subjects.filter(s => s.class_id === cls.id).forEach(s => {
         const key = normalizeSubjectName(s.name)
         ;(bySubject[key] = bySubject[key] || []).push({ cls, subject: s })
@@ -552,7 +591,7 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
                 <div key={dateInfo.date} className={`date-item ${selectedDate === dateInfo.date ? 'active' : ''}`}
                   onClick={() => { setSelectedDate(selectedDate === dateInfo.date ? null : dateInfo.date); setCurrentView('datewise') }}>
                   <div className="date-row">
-                    <span className="date">{formatDate(dateInfo.date)}</span>
+                    <input type="date" className="date-input" defaultValue={dateInfo.date} onClick={e => e.stopPropagation()} onChange={e => { e.stopPropagation(); handleEditDate(dateInfo.date, e.target.value) }} title="Change this date" />
                     <button className="date-delete-btn" onClick={e => { e.stopPropagation(); handleDeleteDate(dateInfo.date) }} title="Delete date">×</button>
                   </div>
                   <div className="day">{dateInfo.day}</div>
@@ -583,15 +622,59 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
         <input type="file" id="importFile" style={{ display: 'none' }} accept=".json" onChange={async e => {
           const file = e.target.files?.[0]; if (!file) return
           const text = await file.text()
-          try { const imported = JSON.parse(text); showToast('Data imported! (Refresh to see changes)'); console.log('Import:', imported) } catch { alert('Invalid file!') }
+          try {
+            const imported = JSON.parse(text)
+            if (imported.datesheet) {
+              if (imported.datesheet.dates) {
+                for (const d of imported.datesheet.dates) {
+                  if (!examDates.find(e => e.date === d.date)) {
+                    await supabase.from('exam_dates').upsert({ tracker_id: activeTrackerId!, date: d.date, day: d.day }, { onConflict: 'tracker_id,date' })
+                  }
+                }
+              }
+              if (imported.datesheet.grades) {
+                for (const [, gradeData] of Object.entries(imported.datesheet.grades) as [string, any][]) {
+                  if (gradeData.subjects) {
+                    let cls = classes.find(c => c.label === gradeData.name)
+                    if (!cls) {
+                      const trackItems = gradeData.trackItems || ['qp', 'edited', 'proofread', 'corrected', 'final']
+                      const { data: newCls } = await supabase.from('classes').insert({ tracker_id: activeTrackerId!, label: gradeData.name, track_items: trackItems, sort_order: classes.length }).select().single()
+                      if (newCls) { cls = newCls; setClasses(prev => [...prev, newCls]) }
+                    }
+                    if (cls) {
+                      for (const s of gradeData.subjects) {
+                        const { data: existing } = await supabase.from('subjects').select('id').eq('class_id', cls.id).eq('name', s.name).single()
+                        if (!existing) {
+                          await supabase.from('subjects').insert({ class_id: cls.id, name: s.name, category: s.category || 'Language', exam_date: s.examDate || null, contact: s.contact || '', sort_order: 0 })
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            if (activeTrackerId) fetchTrackerData(activeTrackerId)
+            showToast('Data imported successfully!')
+          } catch { alert('Invalid file!') }
         }} />
         <button className="action-btn success" onClick={() => showToast('All changes saved.')}>Save changes</button>
-        <button className="action-btn danger" onClick={() => { if (confirm('Reset all data?')) { fetchTrackerData(activeTrackerId!) } }}>Reset all</button>
+        <button className="action-btn danger" onClick={async () => {
+          if (!confirm('Reset all data? This clears all received status.')) return
+          const classIds = classes.map(c => c.id)
+          if (classIds.length > 0) {
+            const { data: subs } = await supabase.from('subjects').select('id').in('class_id', classIds)
+            if (subs && subs.length > 0) {
+              await supabase.from('paper_status').delete().in('subject_id', subs.map((s: any) => s.id))
+            }
+          }
+          setPaperStatuses([])
+          showToast('All data reset.')
+        }}>Reset all</button>
       </div>
 
       {/* Footer */}
       <footer>
-        <div>Question Paper Tracker · Half Yearly Examination · Based on official Term-I datesheet</div>
+        <div>Question Paper Tracker · Session 2026–27 · Half Yearly Examination · Based on official Term-I datesheet</div>
         <div className="footer-credit">Developed by <span>Pranjit</span></div>
       </footer>
 
