@@ -27,7 +27,7 @@ export default function Letterhead({ tracker, examDates, onRenameTracker, onUpda
         <img className="h-9 w-auto" src="/cambridge-logo.png" alt="Cambridge" />
       </div>
       <h1
-        className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors border-b border-dashed border-transparent hover:border-blue-400 inline-block"
+        className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors border-b border-dashed border-transparent hover:border-blue-400"
         onClick={() => {
           const val = prompt('Tracker title:', tracker?.name || '')
           if (val?.trim() && tracker) onRenameTracker(tracker.id, val.trim())
@@ -37,7 +37,7 @@ export default function Letterhead({ tracker, examDates, onRenameTracker, onUpda
         QUESTION PAPER TRACKER — {(tracker?.name || 'SESSION 2026-27').toUpperCase()}
       </h1>
       <p
-        className="text-sm text-slate-500 dark:text-slate-400 mt-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors border-b border-dashed border-transparent hover:border-blue-400 inline-block"
+        className="text-sm text-slate-500 dark:text-slate-400 mt-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors border-b border-dashed border-transparent hover:border-blue-400"
         onClick={() => {
           const val = prompt('Subtitle:', tracker?.subtitle || '')
           if (val !== null) onUpdateSubtitle(val.trim())
