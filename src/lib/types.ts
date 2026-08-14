@@ -5,7 +5,7 @@ export interface School {
   created_at: string
 }
 
-export interface User {
+export interface UserProfile {
   id: string
   school_id: string
   email: string
@@ -22,7 +22,7 @@ export interface Tracker {
   created_at: string
 }
 
-export interface Class {
+export interface ClassRow {
   id: string
   tracker_id: string
   label: string
@@ -58,6 +58,14 @@ export interface PaperStatus {
   updated_by: string | null
   updated_at: string
 }
+
+export interface PaperStatusMap {
+  [subjectId: string]: {
+    [itemType: string]: { checked: boolean; received_date: string | null }
+  }
+}
+
+export type ViewMode = 'datewise' | 'gradewise' | 'subjectwise' | 'pending'
 
 export const WORKFLOW_ITEMS = ['edited', 'proofread', 'corrected', 'final'] as const
 

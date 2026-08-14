@@ -10,7 +10,6 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Get user profile with school
   const { data: userProfile } = await supabase
     .from('users')
     .select('*')
@@ -19,14 +18,6 @@ export default async function DashboardPage() {
 
   if (!userProfile) redirect('/auth/login')
 
-  // Get school
-  const { data: school } = await supabase
-    .from('schools')
-    .select('*')
-    .eq('id', userProfile.school_id)
-    .single()
-
-  // Get trackers for this school
   const { data: trackers } = await supabase
     .from('trackers')
     .select('*')
@@ -37,7 +28,6 @@ export default async function DashboardPage() {
     <DashboardClient
       user={user}
       userProfile={userProfile}
-      school={school}
       initialTrackers={trackers || []}
     />
   )
