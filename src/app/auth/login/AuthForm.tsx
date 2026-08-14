@@ -18,10 +18,12 @@ export default function AuthForm() {
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.from('schools').select('*').order('name').then(({ data }: { data: School[] | null }) => {
-      if (data) setSchools(data)
-    })
-  }, [supabase])
+    if (mode === 'signup') {
+      supabase.from('schools').select('*').order('name').then(({ data }: { data: School[] | null }) => {
+        if (data) setSchools(data)
+      })
+    }
+  }, [supabase, mode])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,14 +33,14 @@ export default function AuthForm() {
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
     if (authError) { setError(authError.message); setLoading(false); return }
 
-    // Verify user belongs to selected school
-    if (data.user && schoolId) {
+    // Check user profile exists
+    if (data.user) {
       const { data: profile } = await supabase
         .from('users').select('school_id').eq('id', data.user.id).single()
 
-      if (!profile || profile.school_id !== schoolId) {
+      if (!profile) {
         await supabase.auth.signOut()
-        setError('This account is not registered with the selected school.')
+        setError('Account not found. Please sign up first.')
         setLoading(false)
         return
       }
@@ -62,19 +64,6 @@ export default function AuthForm() {
     })
     if (authError) { setError(authError.message); setLoading(false); return }
 
-    if (data.user && !data.session) {
-      // Insert user profile with school_id
-      await supabase.from('users').insert({
-        id: data.user.id,
-        school_id: schoolId,
-        email: data.user.email || email,
-        role: 'admin',
-      })
-      setSuccess('Account created! Check your email for confirmation link, then login.')
-      setLoading(false)
-      return
-    }
-
     if (data.user) {
       await supabase.from('users').insert({
         id: data.user.id,
@@ -82,12 +71,17 @@ export default function AuthForm() {
         email: data.user.email || email,
         role: 'admin',
       })
-      router.push('/dashboard')
-      router.refresh()
     }
-  }
 
-  const selectedSchool = schools.find(s => s.id === schoolId)
+    if (data.user && !data.session) {
+      setSuccess('Account created! Check your email for confirmation link, then login.')
+      setLoading(false)
+      return
+    }
+
+    router.push('/dashboard')
+    router.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex">
@@ -160,29 +154,28 @@ export default function AuthForm() {
               {mode === 'login' ? 'Welcome back' : 'Create account'}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {mode === 'login' ? 'Sign in to manage your paper tracker' : 'Sign up to start tracking question papers'}
+              {mode === 'login' ? 'Sign in to manage your paper tracker' : 'Select your school and create an account'}
             </p>
           </div>
 
           <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
-            {/* School selector */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">School</label>
-              <select
-                value={schoolId}
-                onChange={e => setSchoolId(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-              >
-                <option value="">Select your school</option>
-                {schools.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-              {selectedSchool && (
-                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">{selectedSchool.name}</p>
-              )}
-            </div>
+            {/* School selector — signup only */}
+            {mode === 'signup' && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">School</label>
+                <select
+                  value={schoolId}
+                  onChange={e => setSchoolId(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
+                >
+                  <option value="">Select your school</option>
+                  {schools.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Email</label>
@@ -237,7 +230,7 @@ export default function AuthForm() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess('') }}
+              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess(''); setSchoolId('') }}
               className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               {mode === 'login' ? (
