@@ -14,7 +14,7 @@ interface TrackerBarProps {
 
 export default function TrackerBar({ trackers, activeTrackerId, onSelect, onRename, onDelete, onNew, onLogout }: TrackerBarProps) {
   return (
-    <div className="flex gap-2 items-center flex-wrap mb-3 pb-3 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+    <div className="flex gap-1.5 sm:gap-2 items-center flex-wrap mb-3 pb-3 border-b border-slate-200 dark:border-slate-700 overflow-x-auto scrollbar-hide">
       {trackers.map(p => (
         <div
           key={p.id}

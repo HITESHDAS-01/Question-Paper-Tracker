@@ -13,11 +13,11 @@ export default function StatsGrid({ stats }: StatsGridProps) {
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
       {cards.map(c => (
-        <div key={c.label} className={`${c.bg} rounded-xl p-4 text-center`}>
-          <h3 className={`text-2xl font-bold ${c.color}`}>{c.value}</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{c.label}</p>
+        <div key={c.label} className={`${c.bg} rounded-xl p-3 sm:p-4 text-center`}>
+          <h3 className={`text-xl sm:text-2xl font-bold ${c.color}`}>{c.value}</h3>
+          <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">{c.label}</p>
         </div>
       ))}
     </div>
