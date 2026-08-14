@@ -5,40 +5,10 @@
 :root {
   --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
-
-  /* Auth page palette */
-  --paper: #f8fafc;
-  --panel-2: #ffffff;
-  --ink: #0f172a;
-  --ink-soft: #475569;
-  --ink-faint: #94a3b8;
-  --rule: #e2e8f0;
-  --rule-strong: #cbd5e1;
-  --royal: #1e40af;
-  --royal-soft: #dbeafe;
-  --green: #16a34a;
-  --green-soft: #dcfce7;
-  --red: #dc2626;
-  --red-soft: #fee2e2;
-  --gold: #d97706;
 }
 
 html[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #0f172a;
-  --panel-2: #1e293b;
-  --ink: #f1f5f9;
-  --ink-soft: #94a3b8;
-  --ink-faint: #64748b;
-  --rule: #334155;
-  --rule-strong: #475569;
-  --royal: #60a5fa;
-  --royal-soft: #1e3a5f;
-  --green: #4ade80;
-  --green-soft: #14532d;
-  --red: #f87171;
-  --red-soft: #7f1d1d;
-  --gold: #fbbf24;
 }
 
 /* Toast animation */
