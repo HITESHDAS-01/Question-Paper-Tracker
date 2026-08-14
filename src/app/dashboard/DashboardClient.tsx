@@ -493,10 +493,10 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
       <header className="letterhead">
         <div className="letterhead-logos">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="rgs-logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjU2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNTYiIGZpbGw9IiMyRTVDOEEiIHJ4PSI4Ii8+PHRleHQgeD0iNjAiIHk9IjM2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj5ST1lBTCBHT0xEIElOSVRJQ0FMIFNDSUVFTjwvdGV4dD48L3N2Zz4=" alt="Royal Global School" />
+          <img className="rgs-logo" src="/rgs-logo.jpg" alt="Royal Global School" />
           <div className="logo-divider"></div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="cambridge-logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjM0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMzQiIGZpbGw9IiMyRTVDOEEiIHJ4PSI2Ii8+PHRleHQgeD0iNTAiIHk9IjIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIj5DQU1CUklER0UgU1RSRUFNUzwvdGV4dD48L3N2Zz4=" alt="Cambridge" />
+          <img className="cambridge-logo" src="/cambridge-logo.png" alt="Cambridge" />
         </div>
         <h1 onClick={() => {
           const val = prompt('Tracker title:', activeTracker?.name || '')
@@ -585,8 +585,7 @@ export default function DashboardClient({ user, userProfile, school, initialTrac
           <h3>Exam Dates</h3>
           <div className="date-list">
             {examDates.map(dateInfo => {
-              let count = 0
-              classes.forEach(g => subjects.forEach(s => { if (s.exam_date === dateInfo.date) count++ }))
+              const count = subjects.filter(s => s.exam_date === dateInfo.date).length
               return (
                 <div key={dateInfo.date} className={`date-item ${selectedDate === dateInfo.date ? 'active' : ''}`}
                   onClick={() => { setSelectedDate(selectedDate === dateInfo.date ? null : dateInfo.date); setCurrentView('datewise') }}>
