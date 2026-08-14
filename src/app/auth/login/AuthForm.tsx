@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { School } from '@/lib/types'
@@ -9,11 +9,16 @@ export default function AuthForm() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [schoolName, setSchoolName] = useState('')
   const [schoolId, setSchoolId] = useState('')
   const [schools, setSchools] = useState<School[]>([])
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [isNewSchool, setIsNewSchool] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -24,6 +29,31 @@ export default function AuthForm() {
       })
     }
   }, [supabase, mode])
+
+  useEffect(() => {
+    if (!schoolName.trim()) {
+      setFilteredSchools([])
+      setSchoolId('')
+      setIsNewSchool(false)
+      return
+    }
+    const matches = schools.filter(s =>
+      s.name.toLowerCase().includes(schoolName.toLowerCase())
+    )
+    setFilteredSchools(matches)
+    setIsNewSchool(matches.length === 0)
+    const exact = schools.find(s => s.name.toLowerCase() === schoolName.toLowerCase())
+    if (exact) { setSchoolId(exact.id); setIsNewSchool(false) }
+    else { setSchoolId('') }
+  }, [schoolName, schools])
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setShowDropdown(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,18 +86,36 @@ export default function AuthForm() {
     setError('')
     setSuccess('')
 
-    if (!schoolId) { setError('Please select your school.'); setLoading(false); return }
+    if (!schoolName.trim()) { setError('Please enter your school name.'); setLoading(false); return }
+
+    let finalSchoolId = schoolId
+
+    if (isNewSchool || !finalSchoolId) {
+      const slug = schoolName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      const { data: newSchool, error: schoolError } = await supabase
+        .from('schools')
+        .insert({ name: schoolName.trim(), slug })
+        .select('id')
+        .single()
+
+      if (schoolError) {
+        setError('Could not create school. It may already exist — try selecting from the list.')
+        setLoading(false)
+        return
+      }
+      finalSchoolId = newSchool.id
+    }
 
     const { data, error: authError } = await supabase.auth.signUp({
       email, password,
-      options: { data: { role: 'admin', school_id: schoolId } },
+      options: { data: { role: 'admin', school_id: finalSchoolId } },
     })
     if (authError) { setError(authError.message); setLoading(false); return }
 
     if (data.user) {
       await supabase.from('users').insert({
         id: data.user.id,
-        school_id: schoolId,
+        school_id: finalSchoolId,
         email: data.user.email || email,
         role: 'admin',
       })
@@ -154,26 +202,47 @@ export default function AuthForm() {
               {mode === 'login' ? 'Welcome back' : 'Create account'}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {mode === 'login' ? 'Sign in to manage your paper tracker' : 'Select your school and create an account'}
+              {mode === 'login' ? 'Sign in to manage your paper tracker' : 'Enter your school name and create an account'}
             </p>
           </div>
 
           <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
-            {/* School selector — signup only */}
+            {/* School name input — signup only */}
             {mode === 'signup' && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">School</label>
-                <select
-                  value={schoolId}
-                  onChange={e => setSchoolId(e.target.value)}
+              <div className="relative" ref={dropdownRef}>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">School Name</label>
+                <input
+                  type="text"
+                  value={schoolName}
+                  onChange={e => { setSchoolName(e.target.value); setShowDropdown(true) }}
+                  onFocus={() => setShowDropdown(true)}
                   required
-                  className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-                >
-                  <option value="">Select your school</option>
-                  {schools.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
+                  className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                  placeholder="Type your school name..."
+                />
+                {showDropdown && schoolName.trim() && (
+                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+                    {filteredSchools.map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                        onClick={() => { setSchoolName(s.name); setSchoolId(s.id); setIsNewSchool(false); setShowDropdown(false) }}
+                      >{s.name}</button>
+                    ))}
+                    {isNewSchool && (
+                      <div className="px-4 py-2.5 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-t border-slate-100 dark:border-slate-700">
+                        <span className="font-medium">+ Create new school:</span> &ldquo;{schoolName.trim()}&rdquo;
+                      </div>
+                    )}
+                  </div>
+                )}
+                {isNewSchool && schoolName.trim() && (
+                  <p className="mt-1 text-[11px] text-blue-500 dark:text-blue-400">New school will be created automatically</p>
+                )}
+                {!isNewSchool && schoolId && (
+                  <p className="mt-1 text-[11px] text-emerald-500 dark:text-emerald-400">Existing school selected</p>
+                )}
               </div>
             )}
 
@@ -230,7 +299,7 @@ export default function AuthForm() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess(''); setSchoolId('') }}
+              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess(''); setSchoolName(''); setSchoolId(''); setIsNewSchool(false) }}
               className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               {mode === 'login' ? (
