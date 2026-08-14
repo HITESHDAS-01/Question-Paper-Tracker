@@ -64,7 +64,7 @@ export default function DashboardClient({ user, initialTrackers }: Props) {
         />
 
         {t.activeTracker?.note_banner && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-sm text-amber-700 dark:text-amber-300">
+          <div className="mb-4 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
             {t.activeTracker.note_banner}
           </div>
         )}
