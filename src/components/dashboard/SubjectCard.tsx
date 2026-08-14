@@ -10,7 +10,6 @@ interface SubjectCardProps {
   paperStatusMap: PaperStatusMap
   getTrackItems: (cls: ClassRow) => string[]
   onToggle: (subjectId: string, itemType: string, checked: boolean) => void
-  onUpdateDate: (subjectId: string, itemType: string, date: string) => void
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
@@ -26,7 +25,7 @@ function getUrgencyInfo(examDate: string) {
   return { cls: '', badge: '' }
 }
 
-export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, getTrackItems, onToggle, onUpdateDate, onUpdateSubject, onDelete, onMove }: SubjectCardProps) {
+export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, getTrackItems, onToggle, onUpdateSubject, onDelete, onMove }: SubjectCardProps) {
   const status = paperStatusMap[subject.id] || {}
   const trackItems = getTrackItems(cls)
   const totalDone = trackItems.reduce((sum, item) => sum + (status[item]?.checked ? 1 : 0), 0)
@@ -119,7 +118,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
 
       {/* Two-column checklist */}
       <div className="flex flex-col lg:flex-row gap-2">
-        {/* Left: Main items (QP, BP, MS) */}
+        {/* Left: Main items (QP, BP, MS) — no date inputs */}
         {mainItems.length > 0 && (
           <div className="lg:flex-1 min-w-0 space-y-0.5">
             {mainItems.map(item => (
@@ -130,14 +129,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
                   checked={!!status[item]?.checked}
                   onChange={e => onToggle(subject.id, item, e.target.checked)}
                 />
-                <span className="flex-1 whitespace-nowrap">{ITEM_LABELS[item] || item}</span>
-                <input
-                  type="date"
-                  className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none shrink-0 w-[110px]"
-                  value={status[item]?.received_date || ''}
-                  onChange={e => onUpdateDate(subject.id, item, e.target.value)}
-                  title="Received date"
-                />
+                <span className="flex-1">{ITEM_LABELS[item] || item}</span>
               </label>
             ))}
           </div>

@@ -41,13 +41,12 @@ interface SubjectwiseViewProps {
   getTrackItems: (cls: ClassRow) => string[]
   setSelectedSubjectCategory: (c: string | null) => void
   onToggle: (subjectId: string, itemType: string, checked: boolean) => void
-  onUpdateDate: (subjectId: string, itemType: string, date: string) => void
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
 }
 
-export default function SubjectwiseView({ classes, subjects, selectedSubjectCategory, paperStatusMap, getTrackItems, setSelectedSubjectCategory, onToggle, onUpdateDate, onUpdateSubject, onDelete, onMove }: SubjectwiseViewProps) {
+export default function SubjectwiseView({ classes, subjects, selectedSubjectCategory, paperStatusMap, getTrackItems, setSelectedSubjectCategory, onToggle, onUpdateSubject, onDelete, onMove }: SubjectwiseViewProps) {
   const filteredClasses = classes.filter(cls => { const g = getGradeNum(cls.label); return g !== null && g >= 6 })
 
   const bySubject: Record<string, { cls: ClassRow; subject: Subject }[]> = {}
@@ -85,7 +84,7 @@ export default function SubjectwiseView({ classes, subjects, selectedSubjectCate
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {items.map(({ cls, subject }) => (
                 <SubjectCard key={subject.id} cls={cls} subject={subject} allClasses={classes} paperStatusMap={paperStatusMap} getTrackItems={getTrackItems}
-                  onToggle={onToggle} onUpdateDate={onUpdateDate} onUpdateSubject={onUpdateSubject} onDelete={onDelete} onMove={onMove} />
+                  onToggle={onToggle} onUpdateSubject={onUpdateSubject} onDelete={onDelete} onMove={onMove} />
               ))}
             </div>
           </div>

@@ -10,13 +10,12 @@ interface PendingViewProps {
   paperStatusMap: PaperStatusMap
   getTrackItems: (cls: ClassRow) => string[]
   onToggle: (subjectId: string, itemType: string, checked: boolean) => void
-  onUpdateDate: (subjectId: string, itemType: string, date: string) => void
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
 }
 
-export default function PendingView({ classes, subjects, examDates, paperStatusMap, getTrackItems, onToggle, onUpdateDate, onUpdateSubject, onDelete, onMove }: PendingViewProps) {
+export default function PendingView({ classes, subjects, examDates, paperStatusMap, getTrackItems, onToggle, onUpdateSubject, onDelete, onMove }: PendingViewProps) {
   const formatDate = (dateStr: string) => new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
   const pendingItems: { cls: ClassRow; subject: Subject }[] = []
@@ -60,7 +59,7 @@ export default function PendingView({ classes, subjects, examDates, paperStatusM
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {items.map(({ cls, subject }) => (
                 <SubjectCard key={subject.id} cls={cls} subject={subject} allClasses={classes} paperStatusMap={paperStatusMap} getTrackItems={getTrackItems}
-                  onToggle={onToggle} onUpdateDate={onUpdateDate} onUpdateSubject={onUpdateSubject} onDelete={onDelete} onMove={onMove} />
+                  onToggle={onToggle} onUpdateSubject={onUpdateSubject} onDelete={onDelete} onMove={onMove} />
               ))}
             </div>
           </div>

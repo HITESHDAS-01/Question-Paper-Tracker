@@ -100,22 +100,22 @@ export default function DashboardClient({ user, initialTrackers }: Props) {
             ) : t.currentView === 'datewise' ? (
               <DatewiseView examDates={t.examDates} subjects={t.subjects} classes={t.classes} selectedDate={t.selectedDate}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems} setSelectedDate={t.setSelectedDate}
-                onToggle={t.handleTogglePaper} onUpdateDate={t.handleUpdateReceivedDate} onUpdateSubject={t.handleUpdateSubject}
+                onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
                 onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
             ) : t.currentView === 'gradewise' ? (
               <GradewiseView classes={t.classes} subjects={t.subjects} selectedGrade={t.selectedGrade}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems} setSelectedGrade={t.setSelectedGrade}
-                onToggle={t.handleTogglePaper} onUpdateDate={t.handleUpdateReceivedDate} onUpdateSubject={t.handleUpdateSubject}
+                onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
                 onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
             ) : t.currentView === 'subjectwise' ? (
               <SubjectwiseView classes={t.classes} subjects={t.subjects} selectedSubjectCategory={t.selectedSubjectCategory}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems} setSelectedSubjectCategory={t.setSelectedSubjectCategory}
-                onToggle={t.handleTogglePaper} onUpdateDate={t.handleUpdateReceivedDate} onUpdateSubject={t.handleUpdateSubject}
+                onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
                 onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
             ) : (
               <PendingView classes={t.classes} subjects={t.subjects} examDates={t.examDates}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems}
-                onToggle={t.handleTogglePaper} onUpdateDate={t.handleUpdateReceivedDate} onUpdateSubject={t.handleUpdateSubject}
+                onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
                 onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
             )}
           </main>

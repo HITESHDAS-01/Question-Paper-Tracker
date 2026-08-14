@@ -11,13 +11,12 @@ interface GradewiseViewProps {
   getTrackItems: (cls: ClassRow) => string[]
   setSelectedGrade: (g: string | null) => void
   onToggle: (subjectId: string, itemType: string, checked: boolean) => void
-  onUpdateDate: (subjectId: string, itemType: string, date: string) => void
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
 }
 
-export default function GradewiseView({ classes, subjects, selectedGrade, paperStatusMap, getTrackItems, setSelectedGrade, onToggle, onUpdateDate, onUpdateSubject, onDelete, onMove }: GradewiseViewProps) {
+export default function GradewiseView({ classes, subjects, selectedGrade, paperStatusMap, getTrackItems, setSelectedGrade, onToggle, onUpdateSubject, onDelete, onMove }: GradewiseViewProps) {
   const gradesToShow = selectedGrade ? classes.filter(c => c.id === selectedGrade) : classes
 
   return (
@@ -55,7 +54,7 @@ export default function GradewiseView({ classes, subjects, selectedGrade, paperS
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {clsSubjects.map(s => (
                 <SubjectCard key={s.id} cls={cls} subject={s} allClasses={classes} paperStatusMap={paperStatusMap} getTrackItems={getTrackItems}
-                  onToggle={onToggle} onUpdateDate={onUpdateDate} onUpdateSubject={onUpdateSubject} onDelete={onDelete} onMove={onMove} />
+                  onToggle={onToggle} onUpdateSubject={onUpdateSubject} onDelete={onDelete} onMove={onMove} />
               ))}
             </div>
           </div>
