@@ -31,7 +31,7 @@ export default function DatewiseView({ examDates, subjects, classes, selectedDat
   return (
     <>
       {selectedDate && (
-        <div className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+        <div className="mb-3 text-xs text-slate-600 dark:text-slate-400">
           Showing <strong>{formatDate(selectedDate)}</strong> only ·{' '}
           <button className="text-blue-600 dark:text-blue-400 hover:underline" onClick={() => setSelectedDate(null)}>Show all dates</button>
         </div>
@@ -40,11 +40,11 @@ export default function DatewiseView({ examDates, subjects, classes, selectedDat
         const dateSubjects = subjects.filter(s => s.exam_date === dateInfo.date)
         return (
           <div key={dateInfo.date} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-300 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{formatDate(dateInfo.date)} · {dateInfo.day}</h3>
             </div>
             {dateSubjects.length === 0 ? (
-              <p className="text-sm text-slate-400 dark:text-slate-500 italic">No exams scheduled.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-500 italic">No exams scheduled.</p>
             ) : (
               sortedClasses.map(cls => {
                 const clsSubjects = dateSubjects.filter(s => s.class_id === cls.id)

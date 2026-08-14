@@ -45,14 +45,14 @@ export default function PendingView({ classes, subjects, examDates, paperStatusM
 
   return (
     <>
-      <div className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+      <div className="mb-3 text-xs text-slate-600 dark:text-slate-400">
         <strong>{pendingItems.length}</strong> paper{pendingItems.length === 1 ? '' : 's'} still pending · sorted by nearest exam date
       </div>
       {Object.entries(byDate).sort(([a], [b]) => a === 'No date set' ? 1 : b === 'No date set' ? -1 : a.localeCompare(b)).map(([date, items]) => {
         const dateInfo = examDates.find(d => d.date === date)
         return (
           <div key={date} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-300 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-white">
                 {date === 'No date set' ? 'No Exam Date Set' : `${formatDate(date)}${dateInfo ? ' · ' + dateInfo.day : ''}`}
               </h3>

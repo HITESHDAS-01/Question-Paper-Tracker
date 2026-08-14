@@ -58,13 +58,12 @@ export default function DashboardClient({ user, initialTrackers }: Props) {
           activeTrackerId={t.activeTracker?.id || null}
           onSelect={t.switchTracker}
           onRename={t.handleRenameTracker}
-          onDelete={t.handleDeleteTracker}
           onNew={() => setShowNewTracker(true)}
           onLogout={handleLogout}
         />
 
         {t.activeTracker?.note_banner && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
+          <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 text-sm text-amber-700 dark:text-slate-400">
             {t.activeTracker.note_banner}
           </div>
         )}
@@ -122,21 +121,21 @@ export default function DashboardClient({ user, initialTrackers }: Props) {
           </main>
         </div>
 
-        <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <button className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors" onClick={t.handleExport}>Export data</button>
+        <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-slate-300 dark:border-slate-700">
+          <button className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm" onClick={t.handleExport}>Export data</button>
           <button className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors" onClick={() => document.getElementById('importFile')!.click()}>Import data</button>
           <input type="file" id="importFile" style={{ display: 'none' }} accept=".json" onChange={async e => {
             const file = e.target.files?.[0]; if (!file) return
             const text = await file.text()
             try { const imported = JSON.parse(text); t.handleImport(imported) } catch { alert('Invalid file format!') }
           }} />
-          <button className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors" onClick={() => t.showToast('All changes auto-saved.')}>Save changes</button>
+          <button className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm" onClick={() => t.showToast('All changes auto-saved.')}>Save changes</button>
           <button className="px-4 py-2 rounded-lg bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" onClick={t.handleResetAll}>Reset all</button>
         </div>
 
-        <footer className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 text-center text-xs text-slate-400 dark:text-slate-500">
+        <footer className="mt-6 pt-4 border-t border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-500">
           <div>Question Paper Tracker · Session 2026–27 · Half Yearly Examination · Based on official Term-I datesheet</div>
-          <div className="mt-1">Developed by <span className="font-semibold">Pranjit</span></div>
+          <div className="mt-1">Developed by <span className="font-semibold text-slate-600 dark:text-slate-400">Pranjit</span></div>
         </footer>
       </div>
 

@@ -40,15 +40,15 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
   if (examDate && overall !== 'complete') urgency = getUrgencyInfo(examDate)
 
   const cardBg = overall === 'complete'
-    ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800'
+    ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800'
     : overall === 'partial'
-    ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800'
-    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+    ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800'
+    : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'
 
   return (
-    <div className={`rounded-xl border p-4 transition-all duration-150 hover:shadow-md ${cardBg} ${urgency.cls}`}>
+    <div className={`rounded-xl border p-4 transition-all duration-150 hover:shadow-md shadow-sm ${cardBg} ${urgency.cls}`}>
       {urgency.badge && (
-        <div className="text-xs font-medium text-red-600 dark:text-red-400 mb-2">{urgency.badge}</div>
+        <div className="text-xs font-semibold text-red-600 dark:text-red-400 mb-2">{urgency.badge}</div>
       )}
 
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -62,16 +62,16 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
           overall === 'complete' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
           : overall === 'partial' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-          : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+          : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
         }`} title={overall}>
           {overall === 'complete' ? '✓' : `${totalDone}/${maxItems}`}
         </span>
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">CLASS {cls.label}</span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 uppercase tracking-wide">CLASS {cls.label}</span>
         <select
-          className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
+          className="text-[10px] px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
           defaultValue={subject.category}
           onChange={e => onUpdateSubject(subject.id, { category: e.target.value })}
         >
@@ -79,13 +79,13 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         </select>
         <input
           type="date"
-          className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
+          className="text-[10px] px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
           defaultValue={examDate}
           title="Exam date"
           onChange={e => onUpdateSubject(subject.id, { exam_date: e.target.value || null })}
         />
         <select
-          className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
+          className="text-[10px] px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
           value=""
           onChange={e => { if (e.target.value) onMove(cls.id, subject.id, e.target.value) }}
           title="Move to grade"
@@ -94,7 +94,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
           {allClasses.filter(c => c.id !== cls.id).map(c => <option key={c.id} value={c.id}>To {c.label}</option>)}
         </select>
         <button
-          className="text-slate-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400 text-sm transition-colors ml-auto"
+          className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 text-sm transition-colors ml-auto"
           onClick={() => onDelete(subject.id, subject.name)}
           title="Delete"
         >×</button>
@@ -103,7 +103,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
       <div className="mb-2">
         <input
           type="text"
-          className="text-xs w-full px-2 py-1 rounded border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 outline-none placeholder:text-slate-300 dark:placeholder:text-slate-500"
+          className="text-xs w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-1 focus:ring-blue-300"
           defaultValue={subject.contact || ''}
           placeholder="Teacher / contact"
           title="Responsible teacher or contact"
@@ -111,9 +111,9 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         />
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         {trackItems.filter(i => !(WORKFLOW_ITEMS as readonly string[]).includes(i)).map(item => (
-          <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1 rounded transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400'}`}>
+          <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
             <input
               type="checkbox"
               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -123,7 +123,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
             <span className="flex-1">{ITEM_LABELS[item] || item}</span>
             <input
               type="date"
-              className="text-[10px] px-1 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
+              className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
               value={status[item]?.received_date || ''}
               onChange={e => onUpdateDate(subject.id, item, e.target.value)}
               title="Received date"
@@ -131,10 +131,10 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
           </label>
         ))}
         {trackItems.some(i => (WORKFLOW_ITEMS as readonly string[]).includes(i)) && (
-          <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider pt-1 border-t border-slate-100 dark:border-slate-700 mt-1">Print Workflow</div>
+          <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider pt-1.5 pb-0.5 border-t border-slate-200 dark:border-slate-700 mt-1">Print Workflow</div>
         )}
         {trackItems.filter(i => (WORKFLOW_ITEMS as readonly string[]).includes(i)).map(item => (
-          <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1 rounded transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400'}`}>
+          <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
             <input
               type="checkbox"
               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -144,7 +144,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
             <span className="flex-1">{ITEM_LABELS[item] || item}</span>
             <input
               type="date"
-              className="text-[10px] px-1 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
+              className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
               value={status[item]?.received_date || ''}
               onChange={e => onUpdateDate(subject.id, item, e.target.value)}
               title="Received date"
@@ -153,7 +153,7 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         ))}
       </div>
 
-      <div className="mt-3 h-1 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+      <div className="mt-3 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
         <div className="h-full rounded-full bg-blue-500 transition-all duration-300" style={{ width: `${maxItems ? Math.round((totalDone / maxItems) * 100) : 0}%` }} />
       </div>
     </div>

@@ -37,7 +37,7 @@ export default function Letterhead({ tracker, examDates, onRenameTracker, onUpda
         QUESTION PAPER TRACKER — {(tracker?.name || 'SESSION 2026-27').toUpperCase()}
       </h1>
       <p
-        className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors border-b border-dashed border-transparent hover:border-blue-400"
+        className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors border-b border-dashed border-transparent hover:border-blue-400"
         onClick={() => {
           const val = prompt('Subtitle:', tracker?.subtitle || '')
           if (val !== null) onUpdateSubtitle(val.trim())
@@ -47,7 +47,7 @@ export default function Letterhead({ tracker, examDates, onRenameTracker, onUpda
         {tracker?.subtitle || 'Half Yearly Examination · Grade III to XII · Royal Global School, Guwahati'}
       </p>
       <div className="h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent my-2 sm:my-3" />
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-slate-500 dark:text-slate-500">
         <span>{dateRange}</span>
         <span className="hidden sm:inline">Verified against official datesheet</span>
         <span>Click any field to edit</span>

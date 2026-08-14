@@ -63,13 +63,13 @@ export default function SubjectwiseView({ classes, subjects, selectedSubjectCate
     <>
       <div className="flex flex-wrap gap-1.5 mb-4">
         <button
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${!selectedSubjectCategory ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${!selectedSubjectCategory ? 'bg-blue-600 border-blue-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600'}`}
           onClick={() => setSelectedSubjectCategory(null)}
         >All Subjects</button>
         {subjectNames.map(c => (
           <button
             key={c}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedSubjectCategory === c ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedSubjectCategory === c ? 'bg-blue-600 border-blue-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600'}`}
             onClick={() => setSelectedSubjectCategory(c)}
           >{c}</button>
         ))}
@@ -79,7 +79,7 @@ export default function SubjectwiseView({ classes, subjects, selectedSubjectCate
         const items = bySubject[category]
         return (
           <div key={category} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-300 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{category}</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">

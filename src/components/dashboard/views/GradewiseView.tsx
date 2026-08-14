@@ -24,13 +24,13 @@ export default function GradewiseView({ classes, subjects, selectedGrade, paperS
     <>
       <div className="flex flex-wrap gap-1.5 mb-4">
         <button
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${!selectedGrade ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'}`}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${!selectedGrade ? 'bg-blue-600 border-blue-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600'}`}
           onClick={() => setSelectedGrade(null)}
         >All Classes</button>
         {classes.map(c => (
           <button
             key={c.id}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedGrade === c.id ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedGrade === c.id ? 'bg-blue-600 border-blue-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600'}`}
             onClick={() => setSelectedGrade(c.id)}
           >{c.label}</button>
         ))}
@@ -43,11 +43,11 @@ export default function GradewiseView({ classes, subjects, selectedGrade, paperS
 
         return (
           <div key={cls.id} className="mb-6">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-300 dark:border-slate-700">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{cls.label}</h3>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 dark:text-slate-400">{received}/{clsSubjects.length} received</span>
-                <div className="w-24 h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                <span className="text-xs text-slate-600 dark:text-slate-400">{received}/{clsSubjects.length} received</span>
+                <div className="w-24 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                   <div className="h-full rounded-full bg-blue-500 transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
               </div>
