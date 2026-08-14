@@ -185,6 +185,24 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
 
   useEffect(() => { if (activeTrackerId) fetchTrackerData(activeTrackerId) }, [activeTrackerId, fetchTrackerData])
 
+  // Real-time subscriptions
+  useEffect(() => {
+    if (!activeTrackerId) return
+    const channel = supabase
+      .channel(`tracker-${activeTrackerId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'paper_status' }, () => {
+        fetchTrackerData(activeTrackerId)
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'subjects' }, () => {
+        fetchTrackerData(activeTrackerId)
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'exam_dates', filter: `tracker_id=eq.${activeTrackerId}` }, () => {
+        fetchTrackerData(activeTrackerId)
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [activeTrackerId, supabase, fetchTrackerData])
+
   // CRUD handlers with error handling
   const handleTogglePaper = useCallback(async (subjectId: string, itemType: string, checked: boolean) => {
     const today = new Date().toISOString().split('T')[0]
