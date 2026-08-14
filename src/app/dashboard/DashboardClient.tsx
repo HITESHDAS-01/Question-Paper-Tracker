@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
-import type { Tracker } from '@/lib/types'
+import type { Tracker, School } from '@/lib/types'
 import { useTracker } from '@/hooks/useTracker'
 
 import Letterhead from '@/components/dashboard/Letterhead'
@@ -27,10 +27,11 @@ import AddDateModal from '@/components/dashboard/modals/AddDateModal'
 interface Props {
   user: User
   userProfile: { id: string; school_id: string; email: string; role: string }
+  school: School | null
   initialTrackers: Tracker[]
 }
 
-export default function DashboardClient({ user, initialTrackers }: Props) {
+export default function DashboardClient({ user, initialTrackers, school }: Props) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -47,6 +48,7 @@ export default function DashboardClient({ user, initialTrackers }: Props) {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       <div className="max-w-[1400px] mx-auto px-4 py-4">
         <Letterhead
+          school={school}
           tracker={t.activeTracker}
           examDates={t.examDates}
           onRenameTracker={t.handleRenameTracker}

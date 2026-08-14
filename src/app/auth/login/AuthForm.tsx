@@ -1,25 +1,49 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import type { School } from '@/lib/types'
 
 export default function AuthForm() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [schoolId, setSchoolId] = useState('')
+  const [schools, setSchools] = useState<School[]>([])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
+  useEffect(() => {
+    supabase.from('schools').select('*').order('name').then(({ data }: { data: School[] | null }) => {
+      if (data) setSchools(data)
+    })
+  }, [supabase])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError(error.message); setLoading(false); return }
+
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    if (authError) { setError(authError.message); setLoading(false); return }
+
+    // Verify user belongs to selected school
+    if (data.user && schoolId) {
+      const { data: profile } = await supabase
+        .from('users').select('school_id').eq('id', data.user.id).single()
+
+      if (!profile || profile.school_id !== schoolId) {
+        await supabase.auth.signOut()
+        setError('This account is not registered with the selected school.')
+        setLoading(false)
+        return
+      }
+    }
+
     router.push('/dashboard')
     router.refresh()
   }
@@ -29,20 +53,32 @@ export default function AuthForm() {
     setLoading(true)
     setError('')
     setSuccess('')
-    const { data, error } = await supabase.auth.signUp({
+
+    if (!schoolId) { setError('Please select your school.'); setLoading(false); return }
+
+    const { data, error: authError } = await supabase.auth.signUp({
       email, password,
-      options: { data: { role: 'admin' } },
+      options: { data: { role: 'admin', school_id: schoolId } },
     })
-    if (error) { setError(error.message); setLoading(false); return }
+    if (authError) { setError(authError.message); setLoading(false); return }
+
     if (data.user && !data.session) {
+      // Insert user profile with school_id
+      await supabase.from('users').insert({
+        id: data.user.id,
+        school_id: schoolId,
+        email: data.user.email || email,
+        role: 'admin',
+      })
       setSuccess('Account created! Check your email for confirmation link, then login.')
       setLoading(false)
       return
     }
+
     if (data.user) {
       await supabase.from('users').insert({
         id: data.user.id,
-        school_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        school_id: schoolId,
         email: data.user.email || email,
         role: 'admin',
       })
@@ -51,28 +87,27 @@ export default function AuthForm() {
     }
   }
 
+  const selectedSchool = schools.find(s => s.id === schoolId)
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex">
       {/* Left panel */}
       <div className="hidden lg:flex flex-col justify-between w-[48%] p-12 relative overflow-hidden">
-        {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full translate-y-1/3 -translate-x-1/4" />
-        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-white/[0.03] rounded-full" />
 
         <div className="relative z-10">
-          {/* Logo */}
           <div className="flex items-center gap-3 mb-16">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="h-11 w-auto rounded-lg" src="/rgs-logo.jpg" alt="RGS" />
+            <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            </div>
             <div>
               <div className="text-white font-bold text-lg tracking-tight">Paper Tracker</div>
-              <div className="text-blue-200 text-[11px] tracking-wide uppercase">Royal Global School</div>
+              <div className="text-blue-200/70 text-[11px] tracking-wide uppercase">Multi-school Platform</div>
             </div>
           </div>
 
-          {/* Headline */}
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] mb-5">
             Never miss a<br />question paper again.
           </h1>
@@ -82,13 +117,12 @@ export default function AuthForm() {
           </p>
         </div>
 
-        {/* Features */}
         <div className="relative z-10 space-y-4">
           {[
             { icon: '📊', title: 'Multi-view Dashboard', desc: 'Date-wise, Grade-wise, Subject-wise, or Pending Only' },
             { icon: '🖨', title: 'Print Workflow Tracking', desc: 'Edited → Proofread → Corrected → Final Print' },
             { icon: '⚡', title: 'Urgency Alerts', desc: 'Auto-detects overdue and due-today papers' },
-            { icon: '📋', title: 'Multi-tracker Profiles', desc: 'Separate trackers for Half Yearly, Term II, Annual Exam' },
+            { icon: '🏫', title: 'Multi-school Support', desc: 'Each school gets its own isolated workspace' },
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-3 group">
               <div className="w-9 h-9 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center text-sm flex-shrink-0 group-hover:bg-white/20 transition-colors">
@@ -102,9 +136,8 @@ export default function AuthForm() {
           ))}
         </div>
 
-        {/* Footer */}
         <div className="relative z-10 pt-8 border-t border-white/10">
-          <p className="text-blue-200/50 text-xs">Built for Royal Global School, Guwahati</p>
+          <p className="text-blue-200/50 text-xs">Question Paper Tracker — Multi-school Platform</p>
         </div>
       </div>
 
@@ -113,11 +146,12 @@ export default function AuthForm() {
         <div className="w-full max-w-[380px]">
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="h-10 w-auto rounded-lg" src="/rgs-logo.jpg" alt="RGS" />
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            </div>
             <div>
               <div className="font-bold text-slate-900 dark:text-white">Paper Tracker</div>
-              <div className="text-[11px] text-slate-400 uppercase tracking-wide">Royal Global School</div>
+              <div className="text-[11px] text-slate-400 uppercase tracking-wide">Multi-school Platform</div>
             </div>
           </div>
 
@@ -131,6 +165,25 @@ export default function AuthForm() {
           </div>
 
           <form onSubmit={mode === 'login' ? handleLogin : handleSignup} className="space-y-4">
+            {/* School selector */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">School</label>
+              <select
+                value={schoolId}
+                onChange={e => setSchoolId(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
+              >
+                <option value="">Select your school</option>
+                {schools.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              {selectedSchool && (
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">{selectedSchool.name}</p>
+              )}
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Email</label>
               <input
@@ -139,7 +192,7 @@ export default function AuthForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
-                placeholder="admin@royalglobal.com"
+                placeholder="admin@yourschool.com"
               />
             </div>
 
