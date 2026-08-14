@@ -45,12 +45,16 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
     ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800'
     : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'
 
+  const mainItems = trackItems.filter(i => !(WORKFLOW_ITEMS as readonly string[]).includes(i))
+  const workflowItems = trackItems.filter(i => (WORKFLOW_ITEMS as readonly string[]).includes(i))
+
   return (
     <div className={`rounded-xl border p-4 transition-all duration-150 hover:shadow-md shadow-sm ${cardBg} ${urgency.cls}`}>
       {urgency.badge && (
         <div className="text-xs font-semibold text-red-600 dark:text-red-400 mb-2">{urgency.badge}</div>
       )}
 
+      {/* Header: Subject name + status */}
       <div className="flex items-start justify-between gap-2 mb-2">
         <input
           type="text"
@@ -68,8 +72,9 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         </span>
       </div>
 
+      {/* Meta: class, category, date, move, delete */}
       <div className="flex flex-wrap items-center gap-1.5 mb-2">
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 uppercase tracking-wide">CLASS {cls.label}</span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 uppercase tracking-wide">{cls.label}</span>
         <select
           className="text-[10px] px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none"
           defaultValue={subject.category}
@@ -100,7 +105,8 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         >×</button>
       </div>
 
-      <div className="mb-2">
+      {/* Contact */}
+      <div className="mb-3">
         <input
           type="text"
           className="text-xs w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-1 focus:ring-blue-300"
@@ -111,48 +117,66 @@ export default function SubjectCard({ cls, subject, allClasses, paperStatusMap, 
         />
       </div>
 
-      <div className="space-y-0.5">
-        {trackItems.filter(i => !(WORKFLOW_ITEMS as readonly string[]).includes(i)).map(item => (
-          <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
-            <input
-              type="checkbox"
-              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-              checked={!!status[item]?.checked}
-              onChange={e => onToggle(subject.id, item, e.target.checked)}
-            />
-            <span className="flex-1">{ITEM_LABELS[item] || item}</span>
-            <input
-              type="date"
-              className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
-              value={status[item]?.received_date || ''}
-              onChange={e => onUpdateDate(subject.id, item, e.target.value)}
-              title="Received date"
-            />
-          </label>
-        ))}
-        {trackItems.some(i => (WORKFLOW_ITEMS as readonly string[]).includes(i)) && (
-          <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider pt-1.5 pb-0.5 border-t border-slate-200 dark:border-slate-700 mt-1">Print Workflow</div>
+      {/* Two-column checklist */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Left: Main items (QP, BP, MS) */}
+        {mainItems.length > 0 && (
+          <div className="flex-1 space-y-0.5">
+            {mainItems.map(item => (
+              <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
+                <input
+                  type="checkbox"
+                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  checked={!!status[item]?.checked}
+                  onChange={e => onToggle(subject.id, item, e.target.checked)}
+                />
+                <span className="flex-1 whitespace-nowrap">{ITEM_LABELS[item] || item}</span>
+                <input
+                  type="date"
+                  className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
+                  value={status[item]?.received_date || ''}
+                  onChange={e => onUpdateDate(subject.id, item, e.target.value)}
+                  title="Received date"
+                />
+              </label>
+            ))}
+          </div>
         )}
-        {trackItems.filter(i => (WORKFLOW_ITEMS as readonly string[]).includes(i)).map(item => (
-          <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
-            <input
-              type="checkbox"
-              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-              checked={!!status[item]?.checked}
-              onChange={e => onToggle(subject.id, item, e.target.checked)}
-            />
-            <span className="flex-1">{ITEM_LABELS[item] || item}</span>
-            <input
-              type="date"
-              className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
-              value={status[item]?.received_date || ''}
-              onChange={e => onUpdateDate(subject.id, item, e.target.value)}
-              title="Received date"
-            />
-          </label>
-        ))}
+
+        {/* Divider on desktop when both columns exist */}
+        {mainItems.length > 0 && workflowItems.length > 0 && (
+          <div className="hidden sm:block w-px bg-slate-200 dark:bg-slate-700" />
+        )}
+
+        {/* Right: Print Workflow */}
+        {workflowItems.length > 0 && (
+          <div className="flex-1">
+            <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Print Workflow</div>
+            <div className="space-y-0.5">
+              {workflowItems.map(item => (
+                <label key={item} className={`flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-colors ${status[item]?.checked ? 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
+                  <input
+                    type="checkbox"
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    checked={!!status[item]?.checked}
+                    onChange={e => onToggle(subject.id, item, e.target.checked)}
+                  />
+                  <span className="flex-1 whitespace-nowrap">{ITEM_LABELS[item] || item}</span>
+                  <input
+                    type="date"
+                    className="text-[10px] px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none w-24"
+                    value={status[item]?.received_date || ''}
+                    onChange={e => onUpdateDate(subject.id, item, e.target.value)}
+                    title="Received date"
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Progress bar */}
       <div className="mt-3 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
         <div className="h-full rounded-full bg-blue-500 transition-all duration-300" style={{ width: `${maxItems ? Math.round((totalDone / maxItems) * 100) : 0}%` }} />
       </div>
