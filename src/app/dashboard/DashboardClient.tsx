@@ -31,7 +31,7 @@ interface Props {
   initialTrackers: Tracker[]
 }
 
-export default function DashboardClient({ user, initialTrackers, school }: Props) {
+export default function DashboardClient({ user, userProfile, initialTrackers, school }: Props) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -62,11 +62,12 @@ export default function DashboardClient({ user, initialTrackers, school }: Props
           onRename={t.handleRenameTracker}
           onNew={() => setShowNewTracker(true)}
           onLogout={handleLogout}
+          userEmail={userProfile.email}
         />
 
         {t.activeTracker?.note_banner && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/15 dark:to-orange-900/15 border border-amber-200 dark:border-amber-800 text-sm text-amber-700 dark:text-amber-300 shadow-sm">
-            <span className="font-semibold">Note:</span> {t.activeTracker.note_banner}
+          <div className="mb-4 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-l-4 border-amber-500 dark:border-amber-400 text-sm text-amber-800 dark:text-amber-200 shadow-sm">
+            <span className="font-bold">Note:</span> {t.activeTracker.note_banner}
           </div>
         )}
 
