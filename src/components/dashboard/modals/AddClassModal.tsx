@@ -21,7 +21,7 @@ export default function AddClassModal({ onSubmit, onClose }: Props) {
         <div className="p-5 space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Class / Group name</label>
-            <input type="text" value={label} onChange={e => setLabel(e.target.value)} placeholder="e.g. Grade 6, Semester 1, Section A"
+            <input type="text" value={label} onChange={e => setLabel(e.target.value)} placeholder="e.g. Grade 6, Semester 1, Section A" maxLength={50}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
@@ -30,7 +30,7 @@ export default function AddClassModal({ onSubmit, onClose }: Props) {
           </label>
           <button
             className="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-            onClick={() => { if (!label.trim()) { alert('Enter class name'); return } onSubmit(label.trim(), bpMs); setLabel('') }}
+            onClick={() => { const trimmed = label.trim(); if (!trimmed || trimmed.length > 50) { alert('Class name must be 1-50 characters'); return } onSubmit(trimmed, bpMs); setLabel('') }}
           >Add class / group</button>
         </div>
       </div>

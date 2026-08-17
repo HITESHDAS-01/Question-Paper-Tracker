@@ -34,7 +34,7 @@ export default function AddSubjectModal({ classes, onSubmit, onClose }: Props) {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Subject name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sanskrit"
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sanskrit" maxLength={100}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
@@ -51,12 +51,12 @@ export default function AddSubjectModal({ classes, onSubmit, onClose }: Props) {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Teacher / contact (optional)</label>
-            <input type="text" value={contact} onChange={e => setContact(e.target.value)} placeholder="e.g. Mrs. Sharma, 98xxxxxxx"
+            <input type="text" value={contact} onChange={e => setContact(e.target.value)} placeholder="e.g. Mrs. Sharma, 98xxxxxxx" maxLength={200}
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <button
             className="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-            onClick={() => { if (!classId) { alert('Add a class first'); return } if (!name.trim()) { alert('Enter subject name'); return } onSubmit(classId, name.trim(), cat, date, contact); setName(''); setContact('') }}
+            onClick={() => { if (!classId) { alert('Add a class first'); return } const trimmedName = name.trim(); if (!trimmedName || trimmedName.length > 100) { alert('Subject name must be 1-100 characters'); return } const trimmedContact = contact.trim(); if (trimmedContact.length > 200) { alert('Contact must be at most 200 characters'); return } onSubmit(classId, trimmedName, cat, date, trimmedContact); setName(''); setContact('') }}
           >Add subject</button>
         </div>
       </div>

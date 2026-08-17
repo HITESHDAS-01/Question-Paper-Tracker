@@ -61,6 +61,10 @@ export default function AuthForm() {
     setLoading(true)
     setError('')
 
+    if (!email.trim()) { setError('Please enter your email.'); setLoading(false); return }
+    if (email.trim().length > 255) { setError('Email too long.'); setLoading(false); return }
+    if (!password) { setError('Please enter your password.'); setLoading(false); return }
+
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
     if (authError) { setError(authError.message); setLoading(false); return }
 
@@ -88,6 +92,10 @@ export default function AuthForm() {
     setSuccess('')
 
     if (!schoolName.trim()) { setError('Please enter your school name.'); setLoading(false); return }
+    if (schoolName.trim().length > 100) { setError('School name too long (max 100 characters).'); setLoading(false); return }
+    if (email.trim().length > 255) { setError('Email too long.'); setLoading(false); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); setLoading(false); return }
+    if (password.length > 128) { setError('Password too long (max 128 characters).'); setLoading(false); return }
 
     let finalSchoolId = schoolId
 
@@ -114,12 +122,15 @@ export default function AuthForm() {
     if (authError) { setError(authError.message); setLoading(false); return }
 
     if (data.user) {
-      await supabase.from('users').insert({
+      const { error: profileErr } = await supabase.from('users').insert({
         id: data.user.id,
         school_id: finalSchoolId,
         email: data.user.email || email,
         role: 'admin',
       })
+      if (profileErr) {
+        console.error('Profile creation failed:', profileErr)
+      }
     }
 
     if (data.user && !data.session) {
@@ -220,6 +231,7 @@ export default function AuthForm() {
                   required
                   className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                   placeholder="Type your school name..."
+                  maxLength={100}
                 />
                 {showDropdown && schoolName.trim() && (
                   <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">

@@ -25,7 +25,7 @@ export default function AddDateModal({ onSubmit, onClose }: Props) {
           </div>
           <button
             className="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-            onClick={() => { if (!date) { alert('Select a date'); return } onSubmit(date); setDate('') }}
+            onClick={() => { if (!date) { alert('Select a date'); return } if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { alert('Invalid date format'); return } onSubmit(date); setDate('') }}
           >Add date</button>
         </div>
       </div>

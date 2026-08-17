@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { Tracker, ClassRow, ExamDate, Subject, PaperStatus, PaperStatusMap, ViewMode } from '@/lib/types'
@@ -101,14 +101,14 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
     return getTrackItemsFromLabel(cls.label, cls.track_items)
   }, [])
 
-  const paperStatusMap = useCallback((): PaperStatusMap => {
+  const paperStatusMap = useMemo((): PaperStatusMap => {
     const map: PaperStatusMap = {}
     paperStatuses.forEach(ps => {
       if (!map[ps.subject_id]) map[ps.subject_id] = {}
       map[ps.subject_id][ps.item_type] = { checked: ps.checked, received_date: ps.received_date }
     })
     return map
-  }, [paperStatuses])()
+  }, [paperStatuses])
 
   const getUrgencyInfo = useCallback((examDate: string) => {
     const today = new Date(); today.setHours(0, 0, 0, 0)
@@ -187,22 +187,29 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
   useEffect(() => { if (activeTrackerId) fetchTrackerData(activeTrackerId) }, [activeTrackerId, fetchTrackerData])
 
   // Real-time subscriptions
+  const classIdsKey = classes.map(c => c.id).join(',')
   useEffect(() => {
     if (!activeTrackerId) return
     const channel = supabase
       .channel(`tracker-${activeTrackerId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'paper_status' }, () => {
-        fetchTrackerData(activeTrackerId)
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'subjects' }, () => {
-        fetchTrackerData(activeTrackerId)
-      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'exam_dates', filter: `tracker_id=eq.${activeTrackerId}` }, () => {
         fetchTrackerData(activeTrackerId)
       })
       .subscribe()
-    return () => { supabase.removeChannel(channel) }
-  }, [activeTrackerId, supabase, fetchTrackerData])
+
+    let subjectChannel: ReturnType<typeof supabase.channel> | null = null
+    subjectChannel = supabase
+      .channel(`subjects-${activeTrackerId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'subjects' }, () => {
+        fetchTrackerData(activeTrackerId)
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+      if (subjectChannel) supabase.removeChannel(subjectChannel)
+    }
+  }, [activeTrackerId, supabase, fetchTrackerData, classIdsKey])
 
   // CRUD handlers with error handling
   const handleTogglePaper = useCallback(async (subjectId: string, itemType: string, checked: boolean) => {
@@ -232,18 +239,26 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
   }, [supabase, user.id, showToast, activeTrackerId, fetchTrackerData])
 
   const handleUpdateReceivedDate = useCallback(async (subjectId: string, itemType: string, date: string) => {
-    setPaperStatuses(prev => prev.map(ps => ps.subject_id === subjectId && ps.item_type === itemType ? { ...ps, received_date: date || null } : ps))
+    setPaperStatuses(prev => {
+      const existing = prev.find(ps => ps.subject_id === subjectId && ps.item_type === itemType)
+      if (existing) return prev.map(ps => ps.subject_id === subjectId && ps.item_type === itemType ? { ...ps, received_date: date || null } : ps)
+      if (date) return [...prev, { id: crypto.randomUUID(), subject_id: subjectId, item_type: itemType, checked: true, received_date: date, updated_by: user.id, updated_at: new Date().toISOString() }]
+      return prev
+    })
     try {
       const { data: existing } = await supabase.from('paper_status').select('id').eq('subject_id', subjectId).eq('item_type', itemType).single()
       if (existing) {
         const { error } = await supabase.from('paper_status').update({ received_date: date || null }).eq('id', existing.id)
+        if (error) throw error
+      } else if (date) {
+        const { error } = await supabase.from('paper_status').insert({ subject_id: subjectId, item_type: itemType, checked: true, received_date: date, updated_by: user.id })
         if (error) throw error
       }
     } catch (err) {
       console.error('Failed to update date:', err)
       showToast('Failed to save date.')
     }
-  }, [supabase, showToast])
+  }, [supabase, user.id, showToast])
 
   const handleAddTracker = useCallback(async (name: string, subtitle: string, classLabels: string[], trackBpMs: boolean) => {
     try {
@@ -269,9 +284,19 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
     try {
       const { error } = await supabase.from('trackers').delete().eq('id', trackerId)
       if (error) throw error
+      const deletedClassIds = new Set(classes.filter(c => c.tracker_id === trackerId).map(c => c.id))
       setTrackers(prev => {
         const remaining = prev.filter(t => t.id !== trackerId)
-        if (activeTrackerId === trackerId) setActiveTrackerId(remaining[0]?.id || null)
+        if (activeTrackerId === trackerId) {
+          setActiveTrackerId(remaining[0]?.id || null)
+          setClasses([])
+          setSubjects([])
+          setPaperStatuses([])
+        } else {
+          setSubjects(prev => prev.filter(s => !deletedClassIds.has(s.class_id)))
+          const remainingSubjectIds = new Set(subjects.filter(s => !deletedClassIds.has(s.class_id)).map(s => s.id))
+          setPaperStatuses(prev => prev.filter(ps => remainingSubjectIds.has(ps.subject_id)))
+        }
         return remaining
       })
       showToast('Tracker deleted.')
@@ -279,7 +304,7 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
       console.error('Failed to delete tracker:', err)
       showToast('Failed to delete tracker.')
     }
-  }, [supabase, activeTrackerId, showToast])
+  }, [supabase, activeTrackerId, classes, subjects, showToast])
 
   const handleRenameTracker = useCallback(async (trackerId: string, name: string) => {
     try {
@@ -383,9 +408,11 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
       })
       setSubjects(prev => prev.map(s => s.exam_date === oldDate ? { ...s, exam_date: newDate } : s))
 
-      await supabase.from('exam_dates').update({ date: newDate, day: newDay }).eq('tracker_id', activeTrackerId).eq('date', oldDate)
+      const { error: dateErr } = await supabase.from('exam_dates').update({ date: newDate, day: newDay }).eq('tracker_id', activeTrackerId).eq('date', oldDate)
+      if (dateErr) throw dateErr
       if (affectedSubjects.length > 0) {
-        await supabase.from('subjects').update({ exam_date: newDate }).in('id', affectedSubjects.map(s => s.id))
+        const { error: subErr } = await supabase.from('subjects').update({ exam_date: newDate }).in('id', affectedSubjects.map(s => s.id))
+        if (subErr) throw subErr
       }
       showToast(`Date updated — ${affectedSubjects.length} paper${affectedSubjects.length === 1 ? '' : 's'} moved.`)
     } catch (err) {
@@ -437,19 +464,22 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
   const handleMarkAllReceived = useCallback(async () => {
     if (!confirm('Mark ALL papers as received (all tracked stages, including Edited/Proofread/Corrected/Final Print)?')) return
     const today = new Date().toISOString().split('T')[0]
-    const newStatuses: PaperStatus[] = []
+    const upserts: { subject_id: string; item_type: string; checked: boolean; received_date: string; updated_by: string }[] = []
     try {
       for (const cls of classes) {
         const items = getTrackItems(cls)
         const clsSubjects = subjects.filter(s => s.class_id === cls.id)
         for (const s of clsSubjects) {
           for (const item of items) {
-            newStatuses.push({ id: crypto.randomUUID(), subject_id: s.id, item_type: item, checked: true, received_date: today, updated_by: user.id, updated_at: new Date().toISOString() })
-            await supabase.from('paper_status').upsert({ subject_id: s.id, item_type: item, checked: true, received_date: today, updated_by: user.id }, { onConflict: 'subject_id,item_type' })
+            upserts.push({ subject_id: s.id, item_type: item, checked: true, received_date: today, updated_by: user.id })
           }
         }
       }
-      setPaperStatuses(newStatuses)
+      if (upserts.length > 0) {
+        const { error } = await supabase.from('paper_status').upsert(upserts, { onConflict: 'subject_id,item_type' })
+        if (error) throw error
+      }
+      if (activeTrackerId) await fetchTrackerData(activeTrackerId)
       showToast('All papers marked as received!')
     } catch (err) {
       console.error('Failed to mark all received:', err)
@@ -483,11 +513,10 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
     if (!confirm(`Mark ${label} as received for ${filteredSubjects.length} subject${filteredSubjects.length === 1 ? '' : 's'}?`)) return
 
     try {
-      for (const s of filteredSubjects) {
-        await supabase.from('paper_status').upsert(
-          { subject_id: s.id, item_type: itemType, checked: true, received_date: today, updated_by: user.id },
-          { onConflict: 'subject_id,item_type' }
-        )
+      const upserts = filteredSubjects.map(s => ({ subject_id: s.id, item_type: itemType, checked: true, received_date: today, updated_by: user.id }))
+      if (upserts.length > 0) {
+        const { error } = await supabase.from('paper_status').upsert(upserts, { onConflict: 'subject_id,item_type' })
+        if (error) throw error
       }
       if (activeTrackerId) await fetchTrackerData(activeTrackerId)
       showToast(`All ${label} marked as received!`)
@@ -517,37 +546,24 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
     }
   }, [classes, supabase, showToast])
 
-  const handleResetAll = useCallback(async () => {
-    if (!confirm('Reset all data? This clears all received status.')) return
-    try {
-      const classIds = classes.map(c => c.id)
-      if (classIds.length > 0) {
-        const { data: subs } = await supabase.from('subjects').select('id').in('class_id', classIds)
-        if (subs && subs.length > 0) {
-          const { error } = await supabase.from('paper_status').delete().in('subject_id', (subs as { id: string }[]).map(s => s.id))
-          if (error) throw error
-        }
-      }
-      setPaperStatuses([])
-      showToast('All data reset.')
-    } catch (err) {
-      console.error('Failed to reset:', err)
-      showToast('Failed to reset data.')
-    }
-  }, [classes, supabase, showToast])
+  const handleResetAll = handleClearAllStatus
 
   const handleImport = useCallback(async (json: Record<string, unknown>) => {
     if (!activeTrackerId) return
     try {
       const ds = json.datesheet as Record<string, unknown> | undefined
-      if (!ds) { showToast('Invalid import file.'); return }
+      if (!ds || typeof ds !== 'object') { showToast('Invalid import file.'); return }
 
-      if (Array.isArray(ds.dates)) {
-        for (const d of ds.dates as { date: string; day: string }[]) {
-          if (!examDates.find(e => e.date === d.date)) {
-            await supabase.from('exam_dates').upsert({ tracker_id: activeTrackerId, date: d.date, day: d.day }, { onConflict: 'tracker_id,date' })
-          }
-        }
+      const dates = Array.isArray(ds.dates) ? ds.dates : []
+      const validDates = dates.filter((d: unknown): d is { date: string; day: string } =>
+        typeof d === 'object' && d !== null && 'date' in d && 'day' in d &&
+        typeof (d as Record<string, unknown>).date === 'string' && typeof (d as Record<string, unknown>).day === 'string'
+      )
+      if (validDates.length > 0) {
+        await supabase.from('exam_dates').upsert(
+          validDates.map(d => ({ tracker_id: activeTrackerId, date: d.date, day: d.day })),
+          { onConflict: 'tracker_id,date' }
+        )
       }
 
       if (ds.grades && typeof ds.grades === 'object') {
@@ -575,7 +591,7 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
       console.error('Import failed:', err)
       showToast('Import failed. Check file format.')
     }
-  }, [activeTrackerId, classes, examDates, supabase, showToast, fetchTrackerData])
+  }, [activeTrackerId, classes, supabase, showToast, fetchTrackerData])
 
   const handleExport = useCallback(() => {
     try {
