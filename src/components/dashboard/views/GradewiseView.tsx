@@ -2,6 +2,7 @@
 
 import type { ClassRow, Subject, PaperStatusMap } from '@/lib/types'
 import SubjectCard from '../SubjectCard'
+import MarkTypeButtons from '../MarkTypeButtons'
 
 interface GradewiseViewProps {
   classes: ClassRow[]
@@ -14,9 +15,10 @@ interface GradewiseViewProps {
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
+  onMarkAllByType: (itemType: string, options?: { date?: string; classId?: string; category?: string }) => void
 }
 
-export default function GradewiseView({ classes, subjects, selectedGrade, paperStatusMap, getTrackItems, setSelectedGrade, onToggle, onUpdateSubject, onDelete, onMove }: GradewiseViewProps) {
+export default function GradewiseView({ classes, subjects, selectedGrade, paperStatusMap, getTrackItems, setSelectedGrade, onToggle, onUpdateSubject, onDelete, onMove, onMarkAllByType }: GradewiseViewProps) {
   const gradesToShow = selectedGrade ? classes.filter(c => c.id === selectedGrade) : classes
 
   return (
@@ -42,12 +44,18 @@ export default function GradewiseView({ classes, subjects, selectedGrade, paperS
 
         return (
           <div key={cls.id} className="mb-6">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-800 flex-wrap gap-2">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
                 {cls.label}
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                {selectedGrade && (
+                  <MarkTypeButtons
+                    label="Mark all"
+                    onMark={(type) => onMarkAllByType(type, { classId: cls.id })}
+                  />
+                )}
                 <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">{received}/{clsSubjects.length} received</span>
                 <div className="w-24 h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                   <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500" style={{ width: `${progress}%` }} />

@@ -2,6 +2,7 @@
 
 import type { ClassRow, ExamDate, Subject, PaperStatusMap } from '@/lib/types'
 import SubjectCard from '../SubjectCard'
+import MarkTypeButtons from '../MarkTypeButtons'
 
 interface DatewiseViewProps {
   examDates: ExamDate[]
@@ -15,9 +16,10 @@ interface DatewiseViewProps {
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
+  onMarkAllByType: (itemType: string, options?: { date?: string; classId?: string; category?: string }) => void
 }
 
-export default function DatewiseView({ examDates, subjects, classes, selectedDate, paperStatusMap, getTrackItems, setSelectedDate, onToggle, onUpdateSubject, onDelete, onMove }: DatewiseViewProps) {
+export default function DatewiseView({ examDates, subjects, classes, selectedDate, paperStatusMap, getTrackItems, setSelectedDate, onToggle, onUpdateSubject, onDelete, onMove, onMarkAllByType }: DatewiseViewProps) {
   const datesToShow = selectedDate ? examDates.filter(d => d.date === selectedDate) : examDates
   const sortedClasses = [...classes].sort((a, b) => {
     const aCam = a.label.includes('(Cambridge)') ? 0 : 1
@@ -30,20 +32,32 @@ export default function DatewiseView({ examDates, subjects, classes, selectedDat
   return (
     <>
       {selectedDate && (
-        <div className="mb-3 text-xs text-slate-600 dark:text-slate-400">
-          Showing <strong>{formatDate(selectedDate)}</strong> only ·{' '}
-          <button className="text-blue-600 dark:text-blue-400 hover:underline" onClick={() => setSelectedDate(null)}>Show all dates</button>
+        <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="text-xs text-slate-600 dark:text-slate-400">
+            Showing <strong>{formatDate(selectedDate)}</strong> only ·{' '}
+            <button className="text-blue-600 dark:text-blue-400 hover:underline" onClick={() => setSelectedDate(null)}>Show all dates</button>
+          </div>
+          <MarkTypeButtons
+            label="Mark all"
+            onMark={(type) => onMarkAllByType(type, { date: selectedDate })}
+          />
         </div>
       )}
       {datesToShow.map(dateInfo => {
         const dateSubjects = subjects.filter(s => s.exam_date === dateInfo.date)
         return (
           <div key={dateInfo.date} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800 flex-wrap">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" />
                 {formatDate(dateInfo.date)} · {dateInfo.day}
               </h3>
+              {!selectedDate && dateSubjects.length > 0 && (
+                <MarkTypeButtons
+                  label="Mark all"
+                  onMark={(type) => onMarkAllByType(type, { date: dateInfo.date })}
+                />
+              )}
             </div>
             {dateSubjects.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-500 italic">No exams scheduled.</p>

@@ -103,17 +103,17 @@ export default function DashboardClient({ user, initialTrackers, school }: Props
               <DatewiseView examDates={t.examDates} subjects={t.subjects} classes={t.classes} selectedDate={t.selectedDate}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems} setSelectedDate={t.setSelectedDate}
                 onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
-                onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
+                onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} onMarkAllByType={t.handleMarkAllByType} />
             ) : t.currentView === 'gradewise' ? (
               <GradewiseView classes={t.classes} subjects={t.subjects} selectedGrade={t.selectedGrade}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems} setSelectedGrade={t.setSelectedGrade}
                 onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
-                onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
+                onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} onMarkAllByType={t.handleMarkAllByType} />
             ) : t.currentView === 'subjectwise' ? (
               <SubjectwiseView classes={t.classes} subjects={t.subjects} selectedSubjectCategory={t.selectedSubjectCategory}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems} setSelectedSubjectCategory={t.setSelectedSubjectCategory}
                 onToggle={t.handleTogglePaper} onUpdateSubject={t.handleUpdateSubject}
-                onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} />
+                onDelete={t.handleDeleteSubject} onMove={t.handleMoveSubject} onMarkAllByType={t.handleMarkAllByType} />
             ) : (
               <PendingView classes={t.classes} subjects={t.subjects} examDates={t.examDates}
                 paperStatusMap={t.paperStatusMap} getTrackItems={t.getTrackItems}

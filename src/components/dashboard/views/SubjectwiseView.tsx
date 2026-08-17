@@ -2,6 +2,7 @@
 
 import type { ClassRow, Subject, PaperStatusMap } from '@/lib/types'
 import SubjectCard from '../SubjectCard'
+import MarkTypeButtons from '../MarkTypeButtons'
 
 function normalizeSubjectName(name: string): string {
   const n = name.toLowerCase()
@@ -44,9 +45,10 @@ interface SubjectwiseViewProps {
   onUpdateSubject: (subjectId: string, updates: Partial<Subject>) => void
   onDelete: (subjectId: string, name: string) => void
   onMove: (fromClassId: string, subjectId: string, toClassId: string) => void
+  onMarkAllByType: (itemType: string, options?: { date?: string; classId?: string; category?: string }) => void
 }
 
-export default function SubjectwiseView({ classes, subjects, selectedSubjectCategory, paperStatusMap, getTrackItems, setSelectedSubjectCategory, onToggle, onUpdateSubject, onDelete, onMove }: SubjectwiseViewProps) {
+export default function SubjectwiseView({ classes, subjects, selectedSubjectCategory, paperStatusMap, getTrackItems, setSelectedSubjectCategory, onToggle, onUpdateSubject, onDelete, onMove, onMarkAllByType }: SubjectwiseViewProps) {
   const filteredClasses = classes.filter(cls => { const g = getGradeNum(cls.label); return g !== null && g >= 6 })
 
   const bySubject: Record<string, { cls: ClassRow; subject: Subject }[]> = {}
@@ -78,11 +80,17 @@ export default function SubjectwiseView({ classes, subjects, selectedSubjectCate
         const items = bySubject[category]
         return (
           <div key={category} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800 flex-wrap">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" />
                 {category}
               </h3>
+              {selectedSubjectCategory && (
+                <MarkTypeButtons
+                  label="Mark all"
+                  onMark={(type) => onMarkAllByType(type, { category })}
+                />
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {items.map(({ cls, subject }) => (

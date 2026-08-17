@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { Tracker, ClassRow, ExamDate, Subject, PaperStatus, PaperStatusMap, ViewMode } from '@/lib/types'
-import { WORKFLOW_ITEMS, DEFAULT_TRACK_ITEMS_GRADE_6PLUS, DEFAULT_TRACK_ITEMS_BELOW_6 } from '@/lib/types'
+import { WORKFLOW_ITEMS, ITEM_LABELS, DEFAULT_TRACK_ITEMS_GRADE_6PLUS, DEFAULT_TRACK_ITEMS_BELOW_6 } from '@/lib/types'
 
 interface UseTrackerReturn {
   trackers: Tracker[]
@@ -43,6 +43,7 @@ interface UseTrackerReturn {
   handleDeleteSubject: (subjectId: string, name: string) => Promise<void>
   handleMoveSubject: (fromClassId: string, subjectId: string, toClassId: string) => Promise<void>
   handleMarkAllReceived: () => Promise<void>
+  handleMarkAllByType: (itemType: string, options?: { date?: string; classId?: string; category?: string }) => Promise<void>
   handleClearAllStatus: () => Promise<void>
   handleResetAll: () => Promise<void>
   handleImport: (json: Record<string, unknown>) => Promise<void>
@@ -457,6 +458,46 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
     }
   }, [classes, subjects, user.id, supabase, showToast, activeTrackerId, fetchTrackerData, getTrackItems])
 
+  const handleMarkAllByType = useCallback(async (itemType: string, options?: { date?: string; classId?: string; category?: string }) => {
+    const label = ITEM_LABELS[itemType] || itemType.toUpperCase()
+    const today = new Date().toISOString().split('T')[0]
+
+    let filteredSubjects = subjects
+
+    if (options?.date) {
+      filteredSubjects = filteredSubjects.filter(s => s.exam_date === options.date)
+    }
+    if (options?.classId) {
+      filteredSubjects = filteredSubjects.filter(s => s.class_id === options.classId)
+    }
+    if (options?.category) {
+      const catClassIds = classes.map(c => c.id)
+      filteredSubjects = filteredSubjects.filter(s => catClassIds.includes(s.class_id) && s.category === options.category)
+    }
+
+    if (!filteredSubjects.length) {
+      showToast('No subjects found for this filter.')
+      return
+    }
+
+    if (!confirm(`Mark ${label} as received for ${filteredSubjects.length} subject${filteredSubjects.length === 1 ? '' : 's'}?`)) return
+
+    try {
+      for (const s of filteredSubjects) {
+        await supabase.from('paper_status').upsert(
+          { subject_id: s.id, item_type: itemType, checked: true, received_date: today, updated_by: user.id },
+          { onConflict: 'subject_id,item_type' }
+        )
+      }
+      if (activeTrackerId) await fetchTrackerData(activeTrackerId)
+      showToast(`All ${label} marked as received!`)
+    } catch (err) {
+      console.error(`Failed to mark all ${label}:`, err)
+      showToast(`Failed to mark ${label}.`)
+      if (activeTrackerId) fetchTrackerData(activeTrackerId)
+    }
+  }, [subjects, classes, user.id, supabase, showToast, activeTrackerId, fetchTrackerData])
+
   const handleClearAllStatus = useCallback(async () => {
     if (!confirm('Clear ALL received status? This resets everything.')) return
     try {
@@ -571,7 +612,7 @@ export function useTracker(user: User, initialTrackers: Tracker[]): UseTrackerRe
     handleAddTracker, handleDeleteTracker, handleRenameTracker, handleUpdateSubtitle, handleUpdateTrackerName,
     handleAddClass, handleAddSubject, handleAddDate, handleDeleteDate, handleEditDate,
     handleUpdateSubject, handleDeleteSubject, handleMoveSubject,
-    handleMarkAllReceived, handleClearAllStatus, handleResetAll,
+    handleMarkAllReceived, handleMarkAllByType, handleClearAllStatus, handleResetAll,
     handleImport, handleExport,
   }
 }
