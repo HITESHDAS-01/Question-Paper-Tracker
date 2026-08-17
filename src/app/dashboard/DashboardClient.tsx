@@ -45,7 +45,7 @@ export default function DashboardClient({ user, initialTrackers, school }: Props
   const handleLogout = async () => { await supabase.auth.signOut(); router.push('/auth/login'); router.refresh() }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors">
       <div className="max-w-[1400px] mx-auto px-4 py-4">
         <Letterhead
           school={school}
@@ -65,8 +65,8 @@ export default function DashboardClient({ user, initialTrackers, school }: Props
         />
 
         {t.activeTracker?.note_banner && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 text-sm text-amber-700 dark:text-slate-400">
-            {t.activeTracker.note_banner}
+          <div className="mb-4 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/15 dark:to-orange-900/15 border border-amber-200 dark:border-amber-800 text-sm text-amber-700 dark:text-amber-300 shadow-sm">
+            <span className="font-semibold">Note:</span> {t.activeTracker.note_banner}
           </div>
         )}
 
@@ -97,7 +97,7 @@ export default function DashboardClient({ user, initialTrackers, school }: Props
           <main className="flex-1 min-w-0 p-4">
             {t.loading ? (
               <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 dark:border-slate-700 border-t-blue-600 dark:border-t-blue-400" />
               </div>
             ) : t.currentView === 'datewise' ? (
               <DatewiseView examDates={t.examDates} subjects={t.subjects} classes={t.classes} selectedDate={t.selectedDate}
@@ -123,21 +123,25 @@ export default function DashboardClient({ user, initialTrackers, school }: Props
           </main>
         </div>
 
-        <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-slate-300 dark:border-slate-700">
-          <button className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm" onClick={t.handleExport}>Export data</button>
-          <button className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors" onClick={() => document.getElementById('importFile')!.click()}>Import data</button>
+        <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200" onClick={t.handleExport}>Export data</button>
+          <button className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md transition-all duration-200" onClick={() => document.getElementById('importFile')!.click()}>Import data</button>
           <input type="file" id="importFile" style={{ display: 'none' }} accept=".json" onChange={async e => {
             const file = e.target.files?.[0]; if (!file) return
             const text = await file.text()
             try { const imported = JSON.parse(text); t.handleImport(imported) } catch { alert('Invalid file format!') }
           }} />
-          <button className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm" onClick={() => t.showToast('All changes auto-saved.')}>Save changes</button>
-          <button className="px-4 py-2 rounded-lg bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" onClick={t.handleResetAll}>Reset all</button>
+          <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-200" onClick={() => t.showToast('All changes auto-saved.')}>Save changes</button>
+          <button className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-red-500 dark:text-red-400 text-sm font-semibold border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-md transition-all duration-200" onClick={t.handleResetAll}>Reset all</button>
         </div>
 
-        <footer className="mt-6 pt-4 border-t border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-500">
-          <div>Question Paper Tracker · Session 2026–27 · Half Yearly Examination · Based on official Term-I datesheet</div>
-          <div className="mt-1">Developed by <span className="font-semibold text-slate-600 dark:text-slate-400">Pranjit</span></div>
+        <footer className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-500">
+          <div className="flex items-center justify-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" />
+            <span>Question Paper Tracker · Session 2026–27 · Half Yearly Examination</span>
+            <span className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
+          </div>
+          <div className="mt-1">Developed by <span className="font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Pranjit</span></div>
         </footer>
       </div>
 

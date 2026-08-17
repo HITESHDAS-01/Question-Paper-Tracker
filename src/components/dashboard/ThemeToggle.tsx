@@ -21,11 +21,11 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="relative w-14 h-7 rounded-full bg-slate-200 dark:bg-slate-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      className="relative w-14 h-7 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 dark:from-indigo-600 dark:to-purple-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-inner"
       title="Toggle dark mode"
       aria-label="Toggle dark mode"
     >
-      <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow flex items-center justify-center text-xs transition-transform duration-200 ${dark ? 'translate-x-7' : ''}`}>
+      <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white dark:bg-slate-200 shadow-md flex items-center justify-center text-xs transition-transform duration-300 ${dark ? 'translate-x-7' : ''}`}>
         {dark ? '🌙' : '☀️'}
       </span>
     </button>

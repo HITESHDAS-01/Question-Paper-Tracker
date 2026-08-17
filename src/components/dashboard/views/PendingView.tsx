@@ -29,7 +29,14 @@ export default function PendingView({ classes, subjects, examDates, paperStatusM
   })
 
   if (!pendingItems.length) {
-    return <p className="text-center py-16 text-emerald-600 dark:text-emerald-400 italic text-sm">✓ All papers received. Nothing pending.</p>
+    return (
+      <div className="text-center py-16">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+        </div>
+        <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm">All papers received. Nothing pending!</p>
+      </div>
+    )
   }
 
   pendingItems.sort((a, b) => {
@@ -51,8 +58,9 @@ export default function PendingView({ classes, subjects, examDates, paperStatusM
         const dateInfo = examDates.find(d => d.date === date)
         return (
           <div key={date} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-300 dark:border-slate-700">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-white">
+            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500" />
                 {date === 'No date set' ? 'No Exam Date Set' : `${formatDate(date)}${dateInfo ? ' · ' + dateInfo.day : ''}`}
               </h3>
             </div>

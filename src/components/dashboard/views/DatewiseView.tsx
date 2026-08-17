@@ -39,8 +39,11 @@ export default function DatewiseView({ examDates, subjects, classes, selectedDat
         const dateSubjects = subjects.filter(s => s.exam_date === dateInfo.date)
         return (
           <div key={dateInfo.date} className="mb-6">
-            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-300 dark:border-slate-700">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{formatDate(dateInfo.date)} · {dateInfo.day}</h3>
+            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" />
+                {formatDate(dateInfo.date)} · {dateInfo.day}
+              </h3>
             </div>
             {dateSubjects.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-500 italic">No exams scheduled.</p>
@@ -50,7 +53,7 @@ export default function DatewiseView({ examDates, subjects, classes, selectedDat
                 if (!clsSubjects.length) return null
                 return (
                   <div key={cls.id} className="mb-3">
-                    <h4 className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2 uppercase tracking-wide">{cls.label}</h4>
+                    <h4 className="text-xs font-bold mb-2 uppercase tracking-wide px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-300 inline-block">{cls.label}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                       {clsSubjects.map(s => (
                         <SubjectCard key={s.id} cls={cls} subject={s} allClasses={classes} paperStatusMap={paperStatusMap} getTrackItems={getTrackItems}
