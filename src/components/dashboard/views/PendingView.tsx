@@ -50,17 +50,6 @@ export default function PendingView({ classes, subjects, examDates, paperStatusM
     })
   })
 
-  if (!pendingItems.length) {
-    return (
-      <div className="text-center py-16">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-        </div>
-        <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm">All papers received. Nothing pending!</p>
-      </div>
-    )
-  }
-
   pendingItems.sort((a, b) => {
     if (!a.subject.exam_date && !b.subject.exam_date) return 0
     if (!a.subject.exam_date) return 1
@@ -103,6 +92,14 @@ export default function PendingView({ classes, subjects, examDates, paperStatusM
       <div className="mb-3 text-xs text-slate-600 dark:text-slate-400">
         <strong>{pendingItems.length}</strong> paper{pendingItems.length === 1 ? '' : 's'} still pending · sorted by nearest exam date
       </div>
+      {!pendingItems.length && (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+          </div>
+          <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm">All papers received. Nothing pending!</p>
+        </div>
+      )}
       {Object.entries(byDate).sort(([a], [b]) => a === 'No date set' ? 1 : b === 'No date set' ? -1 : a.localeCompare(b)).map(([date, items]) => {
         const dateInfo = examDates.find(d => d.date === date)
         return (
