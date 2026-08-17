@@ -51,7 +51,7 @@ export default function TrackerBar({ trackers, activeTrackerId, onSelect, onRena
       <div className="flex-1" />
 
       {/* User profile dropdown */}
-      <div className="relative" ref={profileRef}>
+      <div className="relative z-50" ref={profileRef}>
         <button
           onClick={() => setProfileOpen(!profileOpen)}
           className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200"

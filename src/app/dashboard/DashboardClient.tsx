@@ -66,7 +66,7 @@ export default function DashboardClient({ user, userProfile, initialTrackers, sc
         />
 
         {t.activeTracker?.note_banner && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-l-4 border-amber-500 dark:border-amber-400 text-sm text-amber-800 dark:text-amber-200 shadow-sm">
+          <div className="mb-4 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-l-4 border-amber-500 dark:border-amber-400 text-sm text-amber-900 dark:text-amber-100 shadow-sm">
             <span className="font-bold">Note:</span> {t.activeTracker.note_banner}
           </div>
         )}
