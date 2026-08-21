@@ -26,7 +26,7 @@ function normalizeSubjectName(name: string): string {
 
 function getGradeNum(label: string): number | null {
   const romanMap: Record<string, number> = { 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7, 'VIII': 8, 'IX': 9, 'X': 10, 'XI': 11, 'XII': 12 }
-  const m = label.match(/(III|IV|V|VI|VII|VIII|IX|X|XI|XII|\d+)/i)
+  const m = label.match(/(XII|XI|X|IX|VIII|VII|VI|V|IV|III|\d+)/i)
   if (!m) return null
   const up = m[1].toUpperCase()
   if (romanMap[up] !== undefined) return romanMap[up]

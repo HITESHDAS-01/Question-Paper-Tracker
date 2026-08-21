@@ -23,18 +23,18 @@ describe('SubjectCard', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={emptyStatusMap} getTrackItems={getTrackItems}
-        onToggle={jest.fn()} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={jest.fn()} onUpdateSubject={jest.fn()}
         onDelete={jest.fn()} onMove={jest.fn()} />
     )
     expect(screen.getByTitle('Edit subject name')).toHaveValue('Mathematics')
-    expect(screen.getByText('CLASS 6')).toBeInTheDocument()
+    expect(screen.getByText('6')).toBeInTheDocument()
   })
 
   it('shows pending status when no items checked', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={emptyStatusMap} getTrackItems={getTrackItems}
-        onToggle={jest.fn()} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={jest.fn()} onUpdateSubject={jest.fn()}
         onDelete={jest.fn()} onMove={jest.fn()} />
     )
     expect(screen.getByText('0/7')).toBeInTheDocument()
@@ -47,7 +47,7 @@ describe('SubjectCard', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={statusMap} getTrackItems={getTrackItems}
-        onToggle={jest.fn()} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={jest.fn()} onUpdateSubject={jest.fn()}
         onDelete={jest.fn()} onMove={jest.fn()} />
     )
     expect(screen.getByText('1/7')).toBeInTheDocument()
@@ -58,7 +58,7 @@ describe('SubjectCard', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={emptyStatusMap} getTrackItems={getTrackItems}
-        onToggle={jest.fn()} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={jest.fn()} onUpdateSubject={jest.fn()}
         onDelete={onDelete} onMove={jest.fn()} />
     )
     fireEvent.click(screen.getByTitle('Delete'))
@@ -70,7 +70,7 @@ describe('SubjectCard', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={emptyStatusMap} getTrackItems={getTrackItems}
-        onToggle={onToggle} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={onToggle} onUpdateSubject={jest.fn()}
         onDelete={jest.fn()} onMove={jest.fn()} />
     )
     const checkbox = screen.getAllByRole('checkbox')[0]
@@ -82,7 +82,7 @@ describe('SubjectCard', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={emptyStatusMap} getTrackItems={getTrackItems}
-        onToggle={jest.fn()} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={jest.fn()} onUpdateSubject={jest.fn()}
         onDelete={jest.fn()} onMove={jest.fn()} />
     )
     expect(screen.getByText('Print Workflow')).toBeInTheDocument()
@@ -92,7 +92,7 @@ describe('SubjectCard', () => {
     render(
       <SubjectCard cls={mockClass} subject={mockSubject} allClasses={[mockClass]}
         paperStatusMap={emptyStatusMap} getTrackItems={getTrackItems}
-        onToggle={jest.fn()} onUpdateDate={jest.fn()} onUpdateSubject={jest.fn()}
+        onToggle={jest.fn()} onUpdateSubject={jest.fn()}
         onDelete={jest.fn()} onMove={jest.fn()} />
     )
     expect(screen.getByText('Question Paper')).toBeInTheDocument()
